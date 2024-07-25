@@ -37,6 +37,7 @@ public class Commands implements CommandExecutor {
         for (Player player : Bukkit.getOnlinePlayers()) {
             ItemStack helmet = player.getInventory().getHelmet();
             if (helmet != null && helmet.getType() == Material.TURTLE_HELMET) {
+                player.setGlowing(false);
                 player.getInventory().setHelmet(null);
             }
         }
