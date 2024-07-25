@@ -25,6 +25,7 @@ public class Commands implements CommandExecutor {
             }
             if (Objects.equals(args[0], "reset")) {
                 removeAllHelmets();
+                sender.sendMessage("移除了所有帽子");
                 return true;
             }
         }
