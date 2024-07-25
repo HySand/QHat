@@ -39,13 +39,20 @@ public class Commands implements CommandExecutor {
                 confirmationMap.putIfAbsent(uuid, System.currentTimeMillis());
                 sender.sendMessage("请在15秒内输入 /qhat confirm 来确认停止。");
                 Bukkit.getScheduler().runTaskLater(plugin, () -> confirmationMap.remove(uuid), 300);
+                return true;
             }
 
-            if (Objects.equals(args[0], "confirm") && confirmationMap.containsKey(uuid)) {
-                removeAllHelmets();
-                QHat.getScoreboard().resetScore();
-                sender.sendMessage("结束了游戏");
-                return true;
+            if (Objects.equals(args[0], "confirm")) {
+                if (confirmationMap.containsKey(uuid)) {
+                    removeAllHelmets();
+                    QHat.getScoreboard().resetScore();
+                    sender.sendMessage("结束了游戏");
+                    return true;
+                } else {
+                    sender.sendMessage(Color.RED + "当前没有结束任务");
+                    return true;
+                }
+
             }
         }
         return false;
