@@ -124,6 +124,7 @@ public class Commands implements CommandExecutor {
             ItemStack itemStack = new ItemStack(Material.TURTLE_HELMET);
             ItemMeta itemMeta = itemStack.getItemMeta();
             itemMeta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
+            itemStack.setItemMeta(itemMeta);
             selectedPlayer.getInventory().setHelmet(itemStack);
             selectedPlayer.setGlowing(true);
             Bukkit.broadcastMessage(ChatColor.YELLOW + selectedPlayer.getDisplayName() + "§f获得了终极绿帽!");
