@@ -10,6 +10,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -17,7 +19,8 @@ import java.util.*;
 
 public class Commands implements CommandExecutor {
     private final QHat plugin;
-    private BukkitTask delayedTask;
+    private BukkitTask timerTask;
+    private BukkitTask rageTask;
 
     private static final Material[] WOOL_TYPES = {
             Material.WHITE_WOOL, Material.ORANGE_WOOL, Material.MAGENTA_WOOL, Material.LIGHT_BLUE_WOOL,
@@ -52,7 +55,7 @@ public class Commands implements CommandExecutor {
                     plugin.setStatus(true);
                     playBGM();
                     broadcastTitle("游戏开始", "抓住戴帽子的胖揍他");
-                    delayedTask = new BukkitRunnable() {
+                    timerTask = new BukkitRunnable() {
                         @Override
                         public void run() {
                             plugin.setStatus(false);
@@ -62,6 +65,13 @@ public class Commands implements CommandExecutor {
                             broadcastTitle("时间到", "先休息一下吧");
                         }
                     }.runTaskLater(plugin, 3700);
+                    rageTask = new BukkitRunnable() {
+                        @Override
+                        public void run() {
+
+                            broadcastTitle("!狂暴模式!", "");
+                        }
+                    }.runTaskLater(plugin, 2420);
                     return true;
                 }
 
@@ -85,7 +95,8 @@ public class Commands implements CommandExecutor {
                     clearInventory();
                     removeAllHelmets();
                     plugin.getScoreboard().resetScore();
-                    delayedTask.cancel();
+                    timerTask.cancel();
+                    rageTask.cancel();
                     plugin.setStatus(false);
                     stopBGM();
                     sender.sendMessage("结束了游戏");
@@ -214,6 +225,13 @@ public class Commands implements CommandExecutor {
     private void broadcastTitle(String title, String subtitle) {
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.sendTitle(title, subtitle);
+        }
+    }
+
+    private void addEffect() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 1280, 1));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 1280, 1));
         }
     }
 }
