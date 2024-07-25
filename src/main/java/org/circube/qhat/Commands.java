@@ -64,14 +64,14 @@ public class Commands implements CommandExecutor {
                             stopBGM();
                             broadcastTitle("时间到", "先休息一下吧", 15, 45, 30);
                         }
-                    }.runTaskLater(plugin, 3700);
+                    }.runTaskLater(plugin, 3660);
                     rageTask = new BukkitRunnable() {
                         @Override
                         public void run() {
                             addEffect();
                             broadcastTitle("!狂暴模式!", "", 3, 15, 5);
                         }
-                    }.runTaskLater(plugin, 2420);
+                    }.runTaskLater(plugin, 2410);
                     return true;
                 }
 
@@ -92,14 +92,7 @@ public class Commands implements CommandExecutor {
 
             if (Objects.equals(args[0], "confirm")) {
                 if (confirmationMap.containsKey(uuid)) {
-                    clearInventory();
-                    removeAllHelmets();
-                    plugin.getScoreboard().resetScore();
-                    timerTask.cancel();
-                    rageTask.cancel();
-                    plugin.setStatus(false);
-                    stopBGM();
-                    clearEffect();
+                    stopActivity();
                     sender.sendMessage("结束了游戏");
                     return true;
                 } else {
@@ -142,8 +135,20 @@ public class Commands implements CommandExecutor {
             selectedPlayer.setGlowing(true);
             Bukkit.broadcastMessage(ChatColor.YELLOW + selectedPlayer.getDisplayName() + "§f获得了终极绿帽!");
         } else {
-            sender.sendMessage("没有处于冒险模式的玩家!");
+            stopActivity();
+            sender.sendMessage("没有处于生存模式的玩家!");
         }
+    }
+
+    private void stopActivity() {
+        clearInventory();
+        removeAllHelmets();
+        plugin.getScoreboard().resetScore();
+        timerTask.cancel();
+        rageTask.cancel();
+        plugin.setStatus(false);
+        stopBGM();
+        clearEffect();
     }
 
     private void initInventory() {
@@ -223,7 +228,7 @@ public class Commands implements CommandExecutor {
         }
     }
 
-    private void broadcastTitle(String title, String subtitle, int last, int fadeIn, int fadeOut) {
+    private void broadcastTitle(String title, String subtitle, int fadeIn, int last, int fadeOut) {
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.sendTitle(title, subtitle, fadeIn, last, fadeOut);
         }
@@ -231,8 +236,8 @@ public class Commands implements CommandExecutor {
 
     private void addEffect() {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 1280, 1));
-            player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 1280, 1));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 1260, 0));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 1260, 1));
         }
     }
 

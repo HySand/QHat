@@ -76,4 +76,13 @@ public class EventListener implements Listener {
             }
         }
     }
+
+    @EventHandler
+    public void onPlayerFall(EntityDamageEvent event) {
+        if (event.getEntity() instanceof Player) {
+            if (event.getCause() == EntityDamageEvent.DamageCause.FALL) {
+                event.setCancelled(true);
+            }
+        }
+    }
 }
