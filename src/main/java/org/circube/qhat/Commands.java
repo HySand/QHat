@@ -46,7 +46,7 @@ public class Commands implements CommandExecutor {
 
             if (Objects.equals(args[0], "start")) {
                 if (plugin.getStatus()) {
-                    sender.sendMessage(Color.RED + "已经开始了");
+                    sender.sendMessage(ChatColor.RED + "已经开始了");
                     return true;
                 } else {
                     initInventory();
@@ -84,7 +84,7 @@ public class Commands implements CommandExecutor {
                     Bukkit.getScheduler().runTaskLater(plugin, () -> confirmationMap.remove(uuid), 300);
                     return true;
                 } else {
-                    sender.sendMessage(Color.RED + "还没有开始");
+                    sender.sendMessage(ChatColor.RED + "还没有开始");
                     return true;
                 }
 
@@ -103,7 +103,7 @@ public class Commands implements CommandExecutor {
                     sender.sendMessage("结束了游戏");
                     return true;
                 } else {
-                    sender.sendMessage(Color.RED + "当前没有结束任务");
+                    sender.sendMessage(ChatColor.RED + "当前没有结束任务");
                     return true;
                 }
 
