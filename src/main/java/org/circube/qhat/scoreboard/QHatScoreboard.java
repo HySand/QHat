@@ -36,7 +36,7 @@ public class QHatScoreboard {
 
     public void resetScore() {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (player.getGameMode() == GameMode.ADVENTURE) {
+            if (player.getGameMode() == GameMode.SURVIVAL) {
                 objective.getScore(player.getName()).setScore(0);
             }
         }

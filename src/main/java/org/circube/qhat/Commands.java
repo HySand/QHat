@@ -5,6 +5,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 
@@ -12,6 +13,13 @@ import java.util.*;
 
 public class Commands implements CommandExecutor {
     private final QHat plugin;
+
+    private static final Material[] WOOL_TYPES = {
+            Material.WHITE_WOOL, Material.ORANGE_WOOL, Material.MAGENTA_WOOL, Material.LIGHT_BLUE_WOOL,
+            Material.YELLOW_WOOL, Material.LIME_WOOL, Material.PINK_WOOL, Material.GRAY_WOOL,
+            Material.LIGHT_GRAY_WOOL, Material.CYAN_WOOL, Material.PURPLE_WOOL, Material.BLUE_WOOL,
+            Material.BROWN_WOOL, Material.GREEN_WOOL, Material.RED_WOOL, Material.BLACK_WOOL
+    };
 
     public Commands(QHat plugin) {
         this.plugin = plugin;
@@ -29,8 +37,8 @@ public class Commands implements CommandExecutor {
             UUID uuid = ((Player) sender).getUniqueId();
 
             if (Objects.equals(args[0], "start")) {
-                removeAllHelmets();
                 initInventory();
+                removeAllHelmets();
                 giveRandomPlayerHelmet(sender);
                 return true;
             }
@@ -44,6 +52,7 @@ public class Commands implements CommandExecutor {
 
             if (Objects.equals(args[0], "confirm")) {
                 if (confirmationMap.containsKey(uuid)) {
+                    clearInventory();
                     removeAllHelmets();
                     QHat.getScoreboard().resetScore();
                     sender.sendMessage("结束了游戏");
@@ -71,7 +80,7 @@ public class Commands implements CommandExecutor {
     private void giveRandomPlayerHelmet(CommandSender sender) {
         List<Player> adventureModePlayers = new ArrayList<>();
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (player.getGameMode() == GameMode.ADVENTURE) {
+            if (player.getGameMode() == GameMode.SURVIVAL) {
                 adventureModePlayers.add(player);
             }
         }
@@ -89,24 +98,33 @@ public class Commands implements CommandExecutor {
 
     private void initInventory() {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (player.getGameMode() == GameMode.ADVENTURE) {
+            if (player.getGameMode() == GameMode.SURVIVAL) {
                 player.getInventory().clear();
+                 Inventory inventory = player.getInventory();
+                Random random = new Random();
 
                 ItemStack bow = new ItemStack(Material.BOW);
-                player.getInventory().addItem(bow);
+                inventory.addItem(bow);
 
                 ItemStack arrows = new ItemStack(Material.ARROW, 8);
-                player.getInventory().addItem(arrows);
+                inventory.addItem(arrows);
 
                 ItemStack enderPearls = new ItemStack(Material.ENDER_PEARL, 2);
-                player.getInventory().addItem(enderPearls);
+                inventory.addItem(enderPearls);
+
+                Material randomWoolType = WOOL_TYPES[random.nextInt(WOOL_TYPES.length)];
+                ItemStack woolStack = new ItemStack(randomWoolType, 16);
+                inventory.addItem(woolStack);
+
+                ItemStack slimeBlockStack = new ItemStack(Material.SLIME_BLOCK, 2);
+                inventory.addItem(slimeBlockStack);
             }
         }
     }
 
     private void clearInventory() {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (player.getGameMode() == GameMode.ADVENTURE) {
+            if (player.getGameMode() == GameMode.SURVIVAL) {
                 player.getInventory().clear();
 
                 for (int i = 0; i < 9; i++) {

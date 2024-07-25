@@ -20,7 +20,7 @@ public class QHatScoreboardTask extends BukkitRunnable {
     @Override
     public void run() {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (player.getGameMode() == GameMode.ADVENTURE) {
+            if (player.getGameMode() == GameMode.SURVIVAL) {
                 ItemStack helmet = player.getInventory().getHelmet();
                 if (helmet != null && helmet.getType() == Material.TURTLE_HELMET) {
                     scoreboard.addScore(player);
