@@ -6,3 +6,4 @@ commands:
   qhat:
     description: 抢帽子
     usage: /qhat
+    permission: "qhat.admin"
