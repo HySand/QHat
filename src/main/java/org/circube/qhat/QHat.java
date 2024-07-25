@@ -7,8 +7,9 @@ public final class QHat extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        Bukkit.getPluginManager().registerEvents(new EventListener(), this);
         // Plugin startup logic
+        Bukkit.getPluginManager().registerEvents(new EventListener(), this);
+        this.getCommand("qhat").setExecutor(new Commands());
     }
 
     @Override
