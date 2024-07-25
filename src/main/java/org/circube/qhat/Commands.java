@@ -51,6 +51,7 @@ public class Commands implements CommandExecutor {
                     giveRandomPlayerHelmet(sender);
                     plugin.setStatus(true);
                     playBGM();
+                    broadcastTitle("游戏开始", "抓住戴帽子的胖揍他");
                     delayedTask = new BukkitRunnable() {
                         @Override
                         public void run() {
@@ -58,7 +59,7 @@ public class Commands implements CommandExecutor {
                             clearInventory();
                             removeAllHelmets();
                             stopBGM();
-                            Bukkit.broadcastMessage("时间到！");
+                            broadcastTitle("时间到", "先休息一下吧");
                         }
                     }.runTaskLater(plugin, 3700);
                     return true;
@@ -207,6 +208,12 @@ public class Commands implements CommandExecutor {
     private void stopBGM() {
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.stopAllSounds();
+        }
+    }
+
+    private void broadcastTitle(String title, String subtitle) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            player.sendTitle(title, subtitle);
         }
     }
 }
