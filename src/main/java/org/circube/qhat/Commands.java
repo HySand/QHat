@@ -1,32 +1,50 @@
 package org.circube.qhat;
 
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.FireworkMeta;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 
 public class Commands implements CommandExecutor {
+    private final QHat plugin;
+
+    public Commands(QHat plugin) {
+        this.plugin = plugin;
+    }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command,String label,String[] args) {
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (command.getName().equalsIgnoreCase("qhat")) {
+            if (!(sender instanceof Player)) {
+                sender.sendMessage("只有玩家可以执行此命令。");
+                return true;
+            }
+
+            Map<UUID, Long> confirmationMap = plugin.getConfirmationMap();
+            UUID uuid = ((Player) sender).getUniqueId();
+
             if (Objects.equals(args[0], "start")) {
                 removeAllHelmets();
+                initInventory();
                 giveRandomPlayerHelmet(sender);
                 return true;
             }
-            if (Objects.equals(args[0], "reset")) {
+
+            if (Objects.equals(args[0], "stop")) {
+                confirmationMap.putIfAbsent(uuid, System.currentTimeMillis());
+                sender.sendMessage("请在15秒内输入 /qhat confirm 来确认停止。");
+                Bukkit.getScheduler().runTaskLater(plugin, () -> confirmationMap.remove(uuid), 300);
+            }
+
+            if (Objects.equals(args[0], "confirm") && confirmationMap.containsKey(uuid)) {
                 removeAllHelmets();
-                sender.sendMessage("移除了所有帽子");
+                QHat.getScoreboard().resetScore();
+                sender.sendMessage("结束了游戏");
                 return true;
             }
         }
@@ -56,9 +74,65 @@ public class Commands implements CommandExecutor {
             Player selectedPlayer = adventureModePlayers.get(random.nextInt(adventureModePlayers.size()));
             selectedPlayer.getInventory().setHelmet(new ItemStack(Material.TURTLE_HELMET));
             selectedPlayer.setGlowing(true);
-            Bukkit.broadcastMessage(selectedPlayer + "获得了终极绿帽!");
+            Bukkit.broadcastMessage(ChatColor.YELLOW + selectedPlayer.getDisplayName() + "§f获得了终极绿帽!");
         } else {
             sender.sendMessage("没有处于冒险模式的玩家!");
         }
+    }
+
+    private void initInventory() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (player.getGameMode() == GameMode.ADVENTURE) {
+                player.getInventory().clear();
+
+                ItemStack bow = new ItemStack(Material.BOW);
+                player.getInventory().addItem(bow);
+
+                ItemStack arrows = new ItemStack(Material.ARROW, 8);
+                player.getInventory().addItem(arrows);
+
+                ItemStack enderPearls = new ItemStack(Material.ENDER_PEARL, 2);
+                player.getInventory().addItem(enderPearls);
+            }
+        }
+    }
+
+    private void clearInventory() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (player.getGameMode() == GameMode.ADVENTURE) {
+                player.getInventory().clear();
+
+                for (int i = 0; i < 9; i++) {
+                    ItemStack firework = createFancyFirework();
+                    player.getInventory().addItem(firework);
+                }
+            }
+        }
+    }
+
+    private ItemStack createFancyFirework() {
+        ItemStack firework = new ItemStack(Material.FIREWORK_ROCKET);
+        FireworkMeta meta = (FireworkMeta) firework.getItemMeta();
+
+        if (meta != null) {
+            Random random = new Random();
+            FireworkEffect.Builder builder = FireworkEffect.builder();
+
+            builder.with(FireworkEffect.Type.values()[random.nextInt(FireworkEffect.Type.values().length)]);
+
+            builder.withColor(Color.fromRGB(random.nextInt(256), random.nextInt(256), random.nextInt(256)));
+            builder.withColor(Color.fromRGB(random.nextInt(256), random.nextInt(256), random.nextInt(256)));
+
+            builder.withFlicker();
+            builder.withTrail();
+
+            meta.addEffect(builder.build());
+
+            meta.setPower(random.nextInt(3) + 1);
+
+            firework.setItemMeta(meta);
+        }
+
+        return firework;
     }
 }

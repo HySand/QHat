@@ -1,6 +1,7 @@
 package org.circube.qhat;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -23,7 +24,7 @@ public class EventListener implements Listener {
                 victim.getInventory().setHelmet(null);
                 attacker.setGlowing(true);
                 victim.setGlowing(false);
-                Bukkit.broadcastMessage(attacker + "夺取了" + victim + "的终极绿帽！");
+                Bukkit.broadcastMessage(ChatColor.YELLOW + attacker.getDisplayName() + "§f夺取了" + ChatColor.YELLOW + victim.getDisplayName() + "§f的终极绿帽！");
             }
         }
     }
