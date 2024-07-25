@@ -18,7 +18,7 @@ import java.util.Random;
 public class Commands implements CommandExecutor {
 
     @Override
-    public boolean onCommand(@NonNull CommandSender sender, Command command,@NonNull String label,@NonNull String[] args) {
+    public boolean onCommand(CommandSender sender, Command command,String label,String[] args) {
         if (command.getName().equalsIgnoreCase("qhat")) {
             if (Objects.equals(args[0], "start")) {
                 removeAllHelmets();
