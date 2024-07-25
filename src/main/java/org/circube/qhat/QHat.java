@@ -1,4 +1,4 @@
-package org.circube.qHat;
+package org.circube.qhat;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
