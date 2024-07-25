@@ -54,7 +54,7 @@ public class Commands implements CommandExecutor {
                     giveRandomPlayerHelmet(sender);
                     plugin.setStatus(true);
                     playBGM();
-                    broadcastTitle("游戏开始", "抓住戴帽子的胖揍他", 40, 5, 15);
+                    broadcastTitle("游戏开始", "抓住戴帽子的胖揍他", 15, 45, 30);
                     timerTask = new BukkitRunnable() {
                         @Override
                         public void run() {
@@ -62,14 +62,14 @@ public class Commands implements CommandExecutor {
                             clearInventory();
                             removeAllHelmets();
                             stopBGM();
-                            broadcastTitle("时间到", "先休息一下吧", 40, 5, 15);
+                            broadcastTitle("时间到", "先休息一下吧", 15, 45, 30);
                         }
                     }.runTaskLater(plugin, 3700);
                     rageTask = new BukkitRunnable() {
                         @Override
                         public void run() {
                             addEffect();
-                            broadcastTitle("!狂暴模式!", "", 20, 5, 5);
+                            broadcastTitle("!狂暴模式!", "", 3, 15, 5);
                         }
                     }.runTaskLater(plugin, 2420);
                     return true;
@@ -225,7 +225,7 @@ public class Commands implements CommandExecutor {
 
     private void broadcastTitle(String title, String subtitle, int last, int fadeIn, int fadeOut) {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.sendTitle(title, subtitle, last, fadeIn, fadeOut);
+            player.sendTitle(title, subtitle, fadeIn, last, fadeOut);
         }
     }
 
