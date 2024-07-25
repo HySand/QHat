@@ -21,6 +21,8 @@ public class EventListener implements Listener {
                 attacker.getInventory().setHelmet(helmet);
                 attacker.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 40, 0));
                 victim.getInventory().setHelmet(null);
+                attacker.setGlowing(true);
+                victim.setGlowing(false);
                 Bukkit.broadcastMessage(attacker + "夺取了" + victim + "的终极绿帽！");
             }
         }

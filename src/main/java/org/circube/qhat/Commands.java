@@ -54,6 +54,7 @@ public class Commands implements CommandExecutor {
             Random random = new Random();
             Player selectedPlayer = adventureModePlayers.get(random.nextInt(adventureModePlayers.size()));
             selectedPlayer.getInventory().setHelmet(new ItemStack(Material.TURTLE_HELMET));
+            selectedPlayer.setGlowing(true);
             Bukkit.broadcastMessage(selectedPlayer + "获得了终极绿帽!");
         } else {
             sender.sendMessage("没有处于冒险模式的玩家!");
