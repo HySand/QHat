@@ -50,12 +50,14 @@ public class Commands implements CommandExecutor {
                     removeAllHelmets();
                     giveRandomPlayerHelmet(sender);
                     plugin.setStatus(true);
+                    playBGM();
                     delayedTask = new BukkitRunnable() {
                         @Override
                         public void run() {
                             plugin.setStatus(false);
                             clearInventory();
                             removeAllHelmets();
+                            stopBGM();
                             Bukkit.broadcastMessage("时间到！");
                         }
                     }.runTaskLater(plugin, 3700);
@@ -83,8 +85,9 @@ public class Commands implements CommandExecutor {
                     removeAllHelmets();
                     plugin.getScoreboard().resetScore();
                     delayedTask.cancel();
-                    sender.sendMessage("结束了游戏");
                     plugin.setStatus(false);
+                    stopBGM();
+                    sender.sendMessage("结束了游戏");
                     return true;
                 } else {
                     sender.sendMessage(Color.RED + "当前没有结束任务");
@@ -120,7 +123,7 @@ public class Commands implements CommandExecutor {
 
             ItemStack itemStack = new ItemStack(Material.TURTLE_HELMET);
             ItemMeta itemMeta = itemStack.getItemMeta();
-            itemMeta.addEnchant(Enchantment.BINDING_CURSE, 0, true);
+            itemMeta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
             selectedPlayer.getInventory().setHelmet(itemStack);
             selectedPlayer.setGlowing(true);
             Bukkit.broadcastMessage(ChatColor.YELLOW + selectedPlayer.getDisplayName() + "§f获得了终极绿帽!");
@@ -196,7 +199,13 @@ public class Commands implements CommandExecutor {
 
     private void playBGM() {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            //TO-DO add BGM
+            player.playSound(player.getLocation(), "bgm.now_or_never", 1f, 1f);
+        }
+    }
+
+    private void stopBGM() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            player.stopAllSounds();
         }
     }
 }
