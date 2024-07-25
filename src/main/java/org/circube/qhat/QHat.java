@@ -10,8 +10,9 @@ import java.util.Map;
 import java.util.UUID;
 
 public final class QHat extends JavaPlugin {
-    private static QHatScoreboard scoreboard;
-    private final Map<UUID, Long> confirmationMap = new HashMap<>();
+    private QHatScoreboard scoreboard;
+    private Map<UUID, Long> confirmationMap = new HashMap<>();
+    private boolean ACTIVATED = false;
 
     @Override
     public void onEnable() {
@@ -30,11 +31,19 @@ public final class QHat extends JavaPlugin {
         // Plugin shutdown logic
     }
 
-    public static QHatScoreboard getScoreboard() {
+    public QHatScoreboard getScoreboard() {
         return scoreboard;
     }
 
     public Map<UUID, Long> getConfirmationMap() {
         return confirmationMap;
+    }
+
+    public boolean getStatus() {
+        return ACTIVATED;
+    }
+
+    public void setStatus(boolean status) {
+        ACTIVATED = status;
     }
 }

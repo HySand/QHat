@@ -22,21 +22,15 @@ public class EventListener implements Listener {
             ItemStack helmet = victim.getInventory().getHelmet();
             if (helmet != null && helmet.getType() == Material.TURTLE_HELMET) {
                 attacker.getInventory().setHelmet(helmet);
-                attacker.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 40, 0));
+                attacker.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 20, 0));
                 victim.getInventory().setHelmet(null);
                 attacker.setGlowing(true);
                 victim.setGlowing(false);
                 Bukkit.broadcastMessage(ChatColor.YELLOW + attacker.getDisplayName() + "§f夺取了" + ChatColor.YELLOW + victim.getDisplayName() + "§f的终极绿帽！");
             }
-        }
-    }
-
-    @EventHandler
-    public void onPlayerItemHeld(PlayerItemHeldEvent event) {
-        Player player = event.getPlayer();
-        ItemStack helmet = player.getInventory().getHelmet();
-        if (helmet != null && helmet.getType() == Material.TURTLE_HELMET) {
-            event.setCancelled(true);
+            if (attacker.getInventory().getHelmet() == null && victim.getInventory().getHelmet() == null) {
+                event.setCancelled(true);
+            }
         }
     }
 

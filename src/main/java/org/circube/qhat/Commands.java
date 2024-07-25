@@ -4,15 +4,20 @@ import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
 
 public class Commands implements CommandExecutor {
     private final QHat plugin;
+    private BukkitTask delayedTask;
 
     private static final Material[] WOOL_TYPES = {
             Material.WHITE_WOOL, Material.ORANGE_WOOL, Material.MAGENTA_WOOL, Material.LIGHT_BLUE_WOOL,
@@ -37,25 +42,49 @@ public class Commands implements CommandExecutor {
             UUID uuid = ((Player) sender).getUniqueId();
 
             if (Objects.equals(args[0], "start")) {
-                initInventory();
-                removeAllHelmets();
-                giveRandomPlayerHelmet(sender);
-                return true;
+                if (plugin.getStatus()) {
+                    sender.sendMessage(Color.RED + "已经开始了");
+                    return true;
+                } else {
+                    initInventory();
+                    removeAllHelmets();
+                    giveRandomPlayerHelmet(sender);
+                    plugin.setStatus(true);
+                    delayedTask = new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            plugin.setStatus(false);
+                            clearInventory();
+                            removeAllHelmets();
+                            Bukkit.broadcastMessage("时间到！");
+                        }
+                    }.runTaskLater(plugin, 3700);
+                    return true;
+                }
+
             }
 
             if (Objects.equals(args[0], "stop")) {
-                confirmationMap.putIfAbsent(uuid, System.currentTimeMillis());
-                sender.sendMessage("请在15秒内输入 /qhat confirm 来确认停止。");
-                Bukkit.getScheduler().runTaskLater(plugin, () -> confirmationMap.remove(uuid), 300);
-                return true;
+                if (plugin.getStatus()) {
+                    confirmationMap.putIfAbsent(uuid, System.currentTimeMillis());
+                    sender.sendMessage("请在15秒内输入 /qhat confirm 来确认停止。");
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> confirmationMap.remove(uuid), 300);
+                    return true;
+                } else {
+                    sender.sendMessage(Color.RED + "还没有开始");
+                    return true;
+                }
+
             }
 
             if (Objects.equals(args[0], "confirm")) {
                 if (confirmationMap.containsKey(uuid)) {
                     clearInventory();
                     removeAllHelmets();
-                    QHat.getScoreboard().resetScore();
+                    plugin.getScoreboard().resetScore();
+                    delayedTask.cancel();
                     sender.sendMessage("结束了游戏");
+                    plugin.setStatus(false);
                     return true;
                 } else {
                     sender.sendMessage(Color.RED + "当前没有结束任务");
@@ -78,17 +107,21 @@ public class Commands implements CommandExecutor {
     }
 
     private void giveRandomPlayerHelmet(CommandSender sender) {
-        List<Player> adventureModePlayers = new ArrayList<>();
+        List<Player> survivalModePlayers = new ArrayList<>();
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (player.getGameMode() == GameMode.SURVIVAL) {
-                adventureModePlayers.add(player);
+                survivalModePlayers.add(player);
             }
         }
 
-        if (!adventureModePlayers.isEmpty()) {
+        if (!survivalModePlayers.isEmpty()) {
             Random random = new Random();
-            Player selectedPlayer = adventureModePlayers.get(random.nextInt(adventureModePlayers.size()));
-            selectedPlayer.getInventory().setHelmet(new ItemStack(Material.TURTLE_HELMET));
+            Player selectedPlayer = survivalModePlayers.get(random.nextInt(survivalModePlayers.size()));
+
+            ItemStack itemStack = new ItemStack(Material.TURTLE_HELMET);
+            ItemMeta itemMeta = itemStack.getItemMeta();
+            itemMeta.addEnchant(Enchantment.BINDING_CURSE, 0, true);
+            selectedPlayer.getInventory().setHelmet(itemStack);
             selectedPlayer.setGlowing(true);
             Bukkit.broadcastMessage(ChatColor.YELLOW + selectedPlayer.getDisplayName() + "§f获得了终极绿帽!");
         } else {
@@ -159,5 +192,11 @@ public class Commands implements CommandExecutor {
         }
 
         return firework;
+    }
+
+    private void playBGM() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            //TO-DO add BGM
+        }
     }
 }
