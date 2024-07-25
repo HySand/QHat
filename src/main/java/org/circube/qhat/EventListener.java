@@ -11,7 +11,6 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -73,7 +72,7 @@ public class EventListener implements Listener {
         if (event.getEntity() instanceof Player player) {
             if (player.getHealth() - event.getFinalDamage() <= 0) {
                 player.setHealth(player.getMaxHealth());
-                player.teleport(player.getBedSpawnLocation());
+                player.teleport(player.getWorld().getSpawnLocation());
             }
         }
     }
