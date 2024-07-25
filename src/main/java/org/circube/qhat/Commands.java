@@ -68,7 +68,7 @@ public class Commands implements CommandExecutor {
                     rageTask = new BukkitRunnable() {
                         @Override
                         public void run() {
-
+                            addEffect();
                             broadcastTitle("!狂暴模式!", "", 20, 5, 5);
                         }
                     }.runTaskLater(plugin, 2420);
@@ -99,6 +99,7 @@ public class Commands implements CommandExecutor {
                     rageTask.cancel();
                     plugin.setStatus(false);
                     stopBGM();
+                    clearEffect();
                     sender.sendMessage("结束了游戏");
                     return true;
                 } else {
@@ -232,6 +233,13 @@ public class Commands implements CommandExecutor {
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 1280, 1));
             player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 1280, 1));
+        }
+    }
+
+    private void clearEffect() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            player.removePotionEffect(PotionEffectType.SPEED);
+            player.removePotionEffect(PotionEffectType.JUMP);
         }
     }
 }
