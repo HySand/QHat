@@ -201,7 +201,7 @@ public class Commands implements CommandExecutor {
 
     private void playBGM() {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.playSound(player, "activity.now_or_never", SoundCategory.NEUTRAL, 1f, 1f);
+            player.playSound(player, "activity:now_or_never", SoundCategory.NEUTRAL, 1f, 1f);
         }
     }
 
