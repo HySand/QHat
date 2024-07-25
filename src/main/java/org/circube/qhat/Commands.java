@@ -53,6 +53,7 @@ public class Commands implements CommandExecutor {
                     removeAllHelmets();
                     giveRandomPlayerHelmet(sender);
                     plugin.setStatus(true);
+                    stopBGM();
                     playBGM();
                     broadcastTitle("游戏开始", "抓住戴帽子的胖揍他", 15, 45, 30);
                     timerTask = new BukkitRunnable() {
