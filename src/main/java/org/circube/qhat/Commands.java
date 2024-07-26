@@ -65,7 +65,7 @@ public class Commands implements CommandExecutor {
                             stopBGM();
                             broadcastTitle("时间到", "先休息一下吧", 15, 45, 30);
                         }
-                    }.runTaskLater(plugin, 3660);
+                    }.runTaskLater(plugin, 3630);
                     rageTask = new BukkitRunnable() {
                         @Override
                         public void run() {
@@ -237,8 +237,8 @@ public class Commands implements CommandExecutor {
 
     private void addEffect() {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 1260, 0));
-            player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 1260, 1));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 1220, 1));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 1220, 1));
         }
     }
 

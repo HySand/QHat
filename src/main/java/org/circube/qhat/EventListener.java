@@ -23,7 +23,7 @@ public class EventListener implements Listener {
             ItemStack helmet = victim.getInventory().getHelmet();
             if (helmet != null && helmet.getType() == Material.TURTLE_HELMET) {
                 attacker.getInventory().setHelmet(helmet);
-                attacker.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 20, 0));
+                attacker.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 30, 1));
                 victim.getInventory().setHelmet(null);
                 attacker.setGlowing(true);
                 victim.setGlowing(false);
