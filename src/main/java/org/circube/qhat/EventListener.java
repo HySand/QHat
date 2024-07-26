@@ -55,6 +55,7 @@ public class EventListener implements Listener {
                 && event.getDamager() instanceof Projectile projectile
                 && projectile.getShooter() instanceof Player attacker
                 && victim.getHealth() - event.getFinalDamage() <= 0) {
+            if (attacker != victim) return;
             ItemStack helmet = victim.getInventory().getHelmet();
             if (helmet != null && helmet.getType() == Material.TURTLE_HELMET) {
                 switchHelmet(victim, attacker, helmet);
@@ -148,9 +149,9 @@ public class EventListener implements Listener {
                     case IRON_AXE:
                         AttributeInstance attackAttribute = player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
                         if (attackAttribute != null) {
-                            attackAttribute.setBaseValue(attackAttribute.getBaseValue() + 0.5);
+                            attackAttribute.setBaseValue(attackAttribute.getBaseValue() + 1);
                         }
-                        player.sendMessage(ChatColor.YELLOW + "已增加0.5攻击力！");
+                        player.sendMessage(ChatColor.YELLOW + "已增加1.5攻击力！");
                         break;
                     case FIRE_CHARGE:
                         plugin.addExtraItem(player.getUniqueId(), new ItemStack(Material.FIRE_CHARGE, 2));
@@ -192,7 +193,7 @@ public class EventListener implements Listener {
             if (itemInHand != null && itemInHand.getType() == Material.FIRE_CHARGE) {
                 Fireball fireball = player.launchProjectile(Fireball.class);
                 fireball.setIsIncendiary(false);
-                fireball.setYield(18.0f);
+                fireball.setYield(3.0f);
 
                 event.setCancelled(true);
 

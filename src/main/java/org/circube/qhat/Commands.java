@@ -31,6 +31,7 @@ public class Commands implements CommandExecutor, TabCompleter {
             "增加3点生命值",
             "增加7%移速",
             "增加12%击退",
+            "增加1.5攻击力",
             "下回合获得2枚火焰弹",
             "下回合获得16支箭",
             "下回合获得3颗末影珍珠",
@@ -388,7 +389,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                 material = Material.STICK;
                 yield ChatColor.AQUA + attributeName;
             }
-            case "增加0.5攻击力" -> {
+            case "增加1.5攻击力" -> {
                 material = Material.IRON_AXE;
                 yield ChatColor.YELLOW + attributeName;
             }
