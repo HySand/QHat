@@ -23,7 +23,7 @@ public class EventListener implements Listener {
     @EventHandler
     public void onPlayerDamage(EntityDamageByEntityEvent event) {
         if (event.getEntity() instanceof Player victim
-            && event.getDamager() instanceof Player attacker) {
+                && event.getDamager() instanceof Player attacker) {
             ItemStack helmet = victim.getInventory().getHelmet();
             if (helmet != null && helmet.getType() == Material.TURTLE_HELMET) {
                 attacker.getInventory().setHelmet(helmet);
@@ -132,11 +132,11 @@ public class EventListener implements Listener {
                         player.sendMessage(ChatColor.DARK_RED + "你将在下回合获得2个TNT！");
                         break;
                     case "下回合获得16支箭":
-                        QHat.addExtraItem(player.getUniqueId(),new ItemStack(Material.ARROW, 8));
+                        QHat.addExtraItem(player.getUniqueId(), new ItemStack(Material.ARROW, 8));
                         player.sendMessage(ChatColor.DARK_GREEN + "你将在下回合获得16支箭！");
                         break;
                     case "下回合获得3颗末影珍珠":
-                        QHat.addExtraItem(player.getUniqueId(),new ItemStack(Material.ENDER_PEARL, 1));
+                        QHat.addExtraItem(player.getUniqueId(), new ItemStack(Material.ENDER_PEARL, 1));
                         player.sendMessage(ChatColor.DARK_PURPLE + "你将在下回合获得3颗末影珍珠！");
                         break;
                     default:

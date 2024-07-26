@@ -116,7 +116,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                     clearInventory(player);
                     removeHelmets(player);
                     stopBGM(player);
-                   player.sendTitle("时间到", "先休息一下吧", 15, 45, 30);
+                    player.sendTitle("时间到", "先休息一下吧", 15, 45, 30);
                 }
 
 
@@ -216,7 +216,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 
             UUID uuid = player.getUniqueId();
 
-            if(QHat.getExtraItem(uuid) != null) {
+            if (QHat.getExtraItem(uuid) != null) {
                 inventory.addItem(QHat.getExtraItem(uuid));
                 QHat.removeExtraItem(uuid);
             }
