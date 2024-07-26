@@ -118,7 +118,7 @@ public class EventListener implements Listener {
                         if (knockbackAttribute != null) {
                             knockbackAttribute.setBaseValue(knockbackAttribute.getBaseValue() + 0.12);
                         }
-                        player.sendMessage(ChatColor.YELLOW + "已增加12%击退！");
+                        player.sendMessage(ChatColor.AQUA + "已增加12%击退！");
                         break;
                     case "增加0.5攻击力":
                         AttributeInstance attackAttribute = player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);

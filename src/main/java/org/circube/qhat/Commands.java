@@ -295,7 +295,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 
         AttributeInstance knockbackAttribute = player.getAttribute(Attribute.GENERIC_ATTACK_KNOCKBACK);
         if (knockbackAttribute != null) {
-            knockbackAttribute.setBaseValue(0);
+            knockbackAttribute.setBaseValue(0.0);
         }
 
         AttributeInstance attackAttribute = player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
@@ -344,6 +344,10 @@ public class Commands implements CommandExecutor, TabCompleter {
                 break;
             case "增加12%击退":
                 material = Material.STICK;
+                displayName = ChatColor.AQUA + attributeName;
+                break;
+            case "增加0.5攻击力":
+                material = Material.IRON_AXE;
                 displayName = ChatColor.YELLOW + attributeName;
                 break;
             case "下回合获得2个TNT":
