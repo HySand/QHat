@@ -6,15 +6,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.circube.qhat.scoreboard.QHatScoreboard;
 import org.circube.qhat.scoreboard.QHatScoreboardTask;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public final class QHat extends JavaPlugin {
     private QHatScoreboard scoreboard;
     private final Map<UUID, Long> confirmationMap = new HashMap<>();
     private boolean ACTIVATED = false;
     private static final Map<UUID, ItemStack> extraItems = new HashMap<>();
+    private static final Set<UUID> selectedUUID = new HashSet<>();
 
     @Override
     public void onEnable() {
@@ -60,5 +59,16 @@ public final class QHat extends JavaPlugin {
 
     public static ItemStack getExtraItem(UUID uuid) {
         return extraItems.getOrDefault(uuid, null);
+    }
+    public static void addAsSelected(UUID uuid) {
+        selectedUUID.add(uuid);
+    }
+
+    public static boolean isSelected(UUID uuid) {
+        return selectedUUID.contains(uuid);
+    }
+
+    public static void clearSelected() {
+        selectedUUID.clear();
     }
 }

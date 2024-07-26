@@ -16,6 +16,8 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -155,6 +157,7 @@ public class EventListener implements Listener {
                         player.sendMessage(ChatColor.WHITE + "未知的属性选择！");
                         break;
                 }
+                QHat.addAsSelected(player.getUniqueId());
                 player.closeInventory();
             }
         }

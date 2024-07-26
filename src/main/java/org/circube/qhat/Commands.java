@@ -106,11 +106,13 @@ public class Commands implements CommandExecutor, TabCompleter {
     }
 
     private void startActivity(CommandSender sender) {
+        cancelTasks();
         for (Player player : Bukkit.getOnlinePlayers()) {
             initInventory(player);
             removeHelmets(player);
             stopBGM(player);
             playBGM(player);
+            player.closeInventory();
             player.sendTitle(ChatColor.GREEN + "游戏开始", ChatColor.GREEN + "抓住戴帽子的胖揍他", 15, 45, 30);
         }
         giveRandomPlayerHelmet(sender);
@@ -144,6 +146,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                 timeLeft--;
             }
         }.runTaskTimer(plugin, 0, 20);
+
         rageTask = new BukkitRunnable() {
             @Override
             public void run() {
@@ -154,15 +157,19 @@ public class Commands implements CommandExecutor, TabCompleter {
 
             }
         }.runTaskLater(plugin, 2410);
+
         abilityTask = new BukkitRunnable() {
             @Override
             public void run() {
                 for (Player player : Bukkit.getOnlinePlayers()) {
+                    if (QHat.isSelected(player.getUniqueId())) {
+                        return;
+                    }
                     openAbilityGUI(player);
                 }
 
             }
-        }.runTaskLater(plugin, 3700);
+        }.runTaskTimer(plugin, 3700, 5);
     }
 
     private void stopActivity() {
@@ -174,13 +181,23 @@ public class Commands implements CommandExecutor, TabCompleter {
             stopBGM(player);
             clearEffect(player);
         }
-        if (plugin.getStatus()) {
-            activityTask.cancel();
-            timerTask.cancel();
-            rageTask.cancel();
+        cancelTasks();
+        plugin.setStatus(false);
+    }
+
+    private void cancelTasks() {
+        if (abilityTask != null && !abilityTask.isCancelled()) {
             abilityTask.cancel();
         }
-        plugin.setStatus(false);
+        if (timerTask != null && !timerTask.isCancelled()) {
+            timerTask.cancel();
+        }
+        if (rageTask != null && !rageTask.isCancelled()) {
+            rageTask.cancel();
+        }
+        if (activityTask != null && !activityTask.isCancelled()) {
+            activityTask.cancel();
+        }
     }
 
     private void removeHelmets(Player player) {
