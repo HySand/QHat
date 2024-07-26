@@ -30,9 +30,10 @@ public class Commands implements CommandExecutor, TabCompleter {
             "增加3点生命值",
             "增加7%移速",
             "增加12%击退",
-            "下回合获得2个TNT",
+            "下回合获得2枚火焰弹",
             "下回合获得16支箭",
-            "下回合获得3颗末影珍珠"
+            "下回合获得3颗末影珍珠",
+            "下回合获得剪刀"
     );
 
     private static final Material[] WOOL_TYPES = {
@@ -234,9 +235,6 @@ public class Commands implements CommandExecutor, TabCompleter {
             ItemStack woolStack = new ItemStack(randomWoolType, 16);
             inventory.addItem(woolStack);
 
-            ItemStack slimeBlockStack = new ItemStack(Material.SLIME_BLOCK, 2);
-            inventory.addItem(slimeBlockStack);
-
             UUID uuid = player.getUniqueId();
 
             if (QHat.getExtraItem(uuid) != null) {
@@ -371,8 +369,8 @@ public class Commands implements CommandExecutor, TabCompleter {
                 material = Material.IRON_AXE;
                 yield ChatColor.YELLOW + attributeName;
             }
-            case "下回合获得2个TNT" -> {
-                material = Material.TNT;
+            case "下回合获得2枚火焰弹" -> {
+                material = Material.FIRE_CHARGE;
                 yield ChatColor.DARK_RED + attributeName;
             }
             case "下回合获得16支箭" -> {
@@ -382,6 +380,10 @@ public class Commands implements CommandExecutor, TabCompleter {
             case "下回合获得3颗末影珍珠" -> {
                 material = Material.ENDER_PEARL;
                 yield ChatColor.DARK_PURPLE + attributeName;
+            }
+            case "下回合获得剪刀" -> {
+                material = Material.SHEARS;
+                yield ChatColor.GOLD + attributeName;
             }
             default -> {
                 material = Material.BARRIER;

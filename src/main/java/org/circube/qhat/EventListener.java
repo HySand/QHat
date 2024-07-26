@@ -6,13 +6,11 @@ import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.TNTPrimed;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
@@ -30,12 +28,19 @@ public class EventListener implements Listener {
                 && event.getDamager() instanceof Player attacker) {
             ItemStack helmet = victim.getInventory().getHelmet();
             if (helmet != null && helmet.getType() == Material.TURTLE_HELMET) {
-                attacker.getInventory().setHelmet(helmet);
-                attacker.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 30, 1));
-                victim.getInventory().setHelmet(null);
-                attacker.setGlowing(true);
-                victim.setGlowing(false);
-                Bukkit.broadcastMessage(ChatColor.YELLOW + attacker.getDisplayName() + "§f夺取了" + ChatColor.YELLOW + victim.getDisplayName() + "§f的终极绿帽！");
+                switchHelmet(victim, attacker, helmet);
+            }
+            if (attacker.getInventory().getHelmet() == null && victim.getInventory().getHelmet() == null) {
+                event.setCancelled(true);
+            }
+        }
+        if (event.getEntity() instanceof Player victim
+                && event.getDamager() instanceof Projectile projectile
+                && projectile.getShooter() instanceof Player attacker
+                && victim.getHealth() - event.getFinalDamage() <= 0) {
+            ItemStack helmet = victim.getInventory().getHelmet();
+            if (helmet != null && helmet.getType() == Material.TURTLE_HELMET) {
+                switchHelmet(victim, attacker, helmet);
             }
             if (attacker.getInventory().getHelmet() == null && victim.getInventory().getHelmet() == null) {
                 event.setCancelled(true);
@@ -48,8 +53,7 @@ public class EventListener implements Listener {
         Player player = event.getPlayer();
         Material blockType = event.getBlock().getType();
         if (player.getGameMode() == GameMode.SURVIVAL) {
-            if (!(blockType == Material.SLIME_BLOCK ||
-                    blockType == Material.WHITE_WOOL ||
+            if (!(blockType == Material.WHITE_WOOL ||
                     blockType == Material.ORANGE_WOOL ||
                     blockType == Material.MAGENTA_WOOL ||
                     blockType == Material.LIGHT_BLUE_WOOL ||
@@ -131,9 +135,9 @@ public class EventListener implements Listener {
                         }
                         player.sendMessage(ChatColor.YELLOW + "已增加0.5攻击力！");
                         break;
-                    case TNT:
-                        QHat.addExtraItem(player.getUniqueId(), new ItemStack(Material.TNT, 2));
-                        player.sendMessage(ChatColor.DARK_RED + "你将在下回合获得2个TNT！");
+                    case FIRE_CHARGE:
+                        QHat.addExtraItem(player.getUniqueId(), new ItemStack(Material.FIRE_CHARGE, 2));
+                        player.sendMessage(ChatColor.DARK_RED + "你将在下回合获得2枚火焰弹！");
                         break;
                     case ARROW:
                         QHat.addExtraItem(player.getUniqueId(), new ItemStack(Material.ARROW, 8));
@@ -142,6 +146,10 @@ public class EventListener implements Listener {
                     case ENDER_PEARL:
                         QHat.addExtraItem(player.getUniqueId(), new ItemStack(Material.ENDER_PEARL, 1));
                         player.sendMessage(ChatColor.DARK_PURPLE + "你将在下回合获得3颗末影珍珠！");
+                        break;
+                    case SHEARS:
+                        QHat.addExtraItem(player.getUniqueId(), new ItemStack(Material.SHEARS, 1));
+                        player.sendMessage(ChatColor.GOLD + "你将在下回合获得剪刀！");
                         break;
                     default:
                         player.sendMessage(ChatColor.WHITE + "未知的属性选择！");
@@ -153,15 +161,16 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
-    public void onPlaceTNT(BlockPlaceEvent event) {
-        if (event.getBlock().getType() == Material.TNT) {
-            event.getBlock().setType(Material.AIR);
-            ((TNTPrimed) (event.getBlock().getWorld().spawnEntity(event.getBlock().getLocation(), EntityType.PRIMED_TNT))).setFuseTicks(25);
-        }
-    }
-
-    @EventHandler
     public void onExplode(EntityExplodeEvent event) {
         event.blockList().clear();
+    }
+
+    private void switchHelmet(Player victim, Player attacker, ItemStack helmet) {
+        attacker.getInventory().setHelmet(helmet);
+        attacker.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 35, 2));
+        victim.getInventory().setHelmet(null);
+        attacker.setGlowing(true);
+        victim.setGlowing(false);
+        Bukkit.broadcastMessage(ChatColor.YELLOW + attacker.getDisplayName() + "§f夺取了" + ChatColor.YELLOW + victim.getDisplayName() + "§f的终极绿帽！");
     }
 }
