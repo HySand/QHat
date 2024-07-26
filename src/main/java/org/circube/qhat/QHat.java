@@ -1,6 +1,7 @@
 package org.circube.qhat;
 
 import org.bukkit.Bukkit;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.circube.qhat.scoreboard.QHatScoreboard;
 import org.circube.qhat.scoreboard.QHatScoreboardTask;
@@ -13,6 +14,7 @@ public final class QHat extends JavaPlugin {
     private QHatScoreboard scoreboard;
     private Map<UUID, Long> confirmationMap = new HashMap<>();
     private boolean ACTIVATED = false;
+    private static Map<UUID, ItemStack> extraItems;
 
     @Override
     public void onEnable() {
@@ -46,5 +48,17 @@ public final class QHat extends JavaPlugin {
 
     public void setStatus(boolean status) {
         ACTIVATED = status;
+    }
+
+    public static void addExtraItem(UUID uuid, ItemStack itemStack) {
+        extraItems.putIfAbsent(uuid, itemStack);
+    }
+
+    public static void removeExtraItem(UUID uuid) {
+        extraItems.remove(uuid);
+    }
+
+    public static ItemStack getExtraItem(UUID uuid) {
+        return extraItems.getOrDefault(uuid, null);
     }
 }

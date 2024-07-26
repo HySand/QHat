@@ -4,11 +4,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.circube.qhat.QHat;
+
+import java.util.Map;
+import java.util.UUID;
 
 public class QHatScoreboard {
     private final QHat plugin;
@@ -34,11 +38,7 @@ public class QHatScoreboard {
         player.setScoreboard(scoreboard);
     }
 
-    public void resetScore() {
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            if (player.getGameMode() == GameMode.SURVIVAL) {
-                objective.getScore(player.getName()).setScore(0);
-            }
-        }
+    public void resetScore(Player player) {
+        objective.getScore(player.getName()).setScore(0);
     }
 }

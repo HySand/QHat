@@ -4,6 +4,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -11,11 +13,13 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public class EventListener implements Listener {
+
     @EventHandler
     public void onPlayerDamage(EntityDamageByEntityEvent event) {
         if (event.getEntity() instanceof Player victim
@@ -82,6 +86,63 @@ public class EventListener implements Listener {
         if (event.getEntity() instanceof Player) {
             if (event.getCause() == EntityDamageEvent.DamageCause.FALL) {
                 event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent event) {
+        if (event.getView().getTitle().equals("Custom GUI")) {
+            event.setCancelled(true);
+            Player player = (Player) event.getWhoClicked();
+
+            if (event.getCurrentItem() != null && event.getCurrentItem().hasItemMeta()) {
+                String displayName = event.getCurrentItem().getItemMeta().getDisplayName();
+                switch (displayName) {
+                    case "增加3点生命值":
+                        AttributeInstance healthAttribute = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+                        if (healthAttribute != null) {
+                            healthAttribute.setBaseValue(healthAttribute.getBaseValue() + 3.0);
+                        }
+                        player.sendMessage(ChatColor.RED + "已增加3点生命值！");
+                        break;
+                    case "增加7%移速":
+                        AttributeInstance speedAttribute = player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
+                        if (speedAttribute != null) {
+                            speedAttribute.setBaseValue(speedAttribute.getBaseValue() * 1.07);
+                        }
+                        player.sendMessage(ChatColor.GREEN + "已增加5%移速！");
+                        break;
+                    case "增加12%击退":
+                        AttributeInstance knockbackAttribute = player.getAttribute(Attribute.GENERIC_ATTACK_KNOCKBACK);
+                        if (knockbackAttribute != null) {
+                            knockbackAttribute.setBaseValue(knockbackAttribute.getBaseValue() + 0.12);
+                        }
+                        player.sendMessage(ChatColor.YELLOW + "已增加10%击退！");
+                        break;
+                    case "增加0.5攻击力":
+                        AttributeInstance attackAttribute = player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
+                        if (attackAttribute != null) {
+                            attackAttribute.setBaseValue(attackAttribute.getBaseValue() + 0.5);
+                        }
+                        player.sendMessage(ChatColor.YELLOW + "已增加10%击退！");
+                        break;
+                    case "下回合获得2个TNT":
+                        QHat.addExtraItem(player.getUniqueId(), new ItemStack(Material.TNT, 2));
+                        player.sendMessage(ChatColor.DARK_RED + "你将在下回合获得2个TNT！");
+                        break;
+                    case "下回合获得16支箭":
+                        QHat.addExtraItem(player.getUniqueId(),new ItemStack(Material.ARROW, 8));
+                        player.sendMessage(ChatColor.DARK_GREEN + "你将在下回合获得16支箭！");
+                        break;
+                    case "下回合获得3颗末影珍珠":
+                        QHat.addExtraItem(player.getUniqueId(),new ItemStack(Material.ENDER_PEARL, 1));
+                        player.sendMessage(ChatColor.DARK_PURPLE + "你将在下回合获得3颗末影珍珠！");
+                        break;
+                    default:
+                        player.sendMessage(ChatColor.WHITE + "未知的属性选择！");
+                        break;
+                }
             }
         }
     }
