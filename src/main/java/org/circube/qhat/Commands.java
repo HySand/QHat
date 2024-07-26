@@ -113,7 +113,7 @@ public class Commands implements CommandExecutor, TabCompleter {
             removeHelmets(player);
             stopBGM(player);
             playBGM(player);
-            player.sendTitle("游戏开始", "抓住戴帽子的胖揍他", 15, 45, 30);
+            player.sendTitle(ChatColor.GREEN + "游戏开始", ChatColor.GREEN + "抓住戴帽子的胖揍他", 15, 45, 30);
         }
 
         plugin.setStatus(true);
@@ -125,7 +125,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                     clearInventory(player);
                     removeHelmets(player);
                     stopBGM(player);
-                    player.sendTitle("时间到", "先休息一下吧", 15, 45, 30);
+                    player.sendTitle(ChatColor.GREEN + "时间到", ChatColor.GREEN + "先休息一下吧", 15, 45, 30);
                 }
 
 
@@ -150,7 +150,7 @@ public class Commands implements CommandExecutor, TabCompleter {
             public void run() {
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     addEffect(player);
-                    player.sendTitle("!狂暴模式!", "", 3, 15, 5);
+                    player.sendTitle(ChatColor.RED + "!狂暴模式!", "", 3, 15, 5);
                 }
 
             }
