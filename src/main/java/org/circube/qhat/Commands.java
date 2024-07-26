@@ -182,6 +182,7 @@ public class Commands implements CommandExecutor {
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (player.getGameMode() == GameMode.SURVIVAL) {
                 player.getInventory().clear();
+                player.setGlowing(false);
 
                 for (int i = 0; i < 9; i++) {
                     ItemStack firework = createFancyFirework();
