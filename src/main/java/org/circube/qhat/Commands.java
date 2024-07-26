@@ -4,6 +4,7 @@ import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -17,7 +18,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
 
-public class Commands implements CommandExecutor {
+public class Commands implements CommandExecutor, TabCompleter {
     private final QHat plugin;
     private BukkitTask timerTask;
     private BukkitTask rageTask;
@@ -46,7 +47,7 @@ public class Commands implements CommandExecutor {
 
             if (Objects.equals(args[0], "start")) {
                 if (plugin.getStatus()) {
-                    sender.sendMessage(ChatColor.RED + "已经开始了");
+                    sender.sendMessage(ChatColor.RED + "已经开始了。");
                     return true;
                 } else {
                     initInventory();
@@ -81,11 +82,11 @@ public class Commands implements CommandExecutor {
             if (Objects.equals(args[0], "stop")) {
                 if (plugin.getStatus()) {
                     confirmationMap.putIfAbsent(uuid, System.currentTimeMillis());
-                    sender.sendMessage("请在15秒内输入 /qhat confirm 来确认停止。");
+                    sender.sendMessage("请在15秒内输入/qhat confirm来确认停止。");
                     Bukkit.getScheduler().runTaskLater(plugin, () -> confirmationMap.remove(uuid), 300);
                     return true;
                 } else {
-                    sender.sendMessage(ChatColor.RED + "还没有开始");
+                    sender.sendMessage(ChatColor.RED + "还没有开始。");
                     return true;
                 }
 
@@ -97,13 +98,21 @@ public class Commands implements CommandExecutor {
                     sender.sendMessage("结束了游戏");
                     return true;
                 } else {
-                    sender.sendMessage(ChatColor.RED + "当前没有结束任务");
+                    sender.sendMessage(ChatColor.RED + "当前没有结束任务，请先输入/qhat stop结束。");
                     return true;
                 }
 
             }
         }
         return false;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String s, String[] args) {
+        if (sender instanceof Player) {
+            if (args.length == 0) return List.of("start", "stop", "confirm");
+        }
+        return null;
     }
 
     private void removeAllHelmets() {

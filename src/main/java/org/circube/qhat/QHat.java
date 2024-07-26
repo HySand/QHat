@@ -19,6 +19,7 @@ public final class QHat extends JavaPlugin {
         // Plugin startup logic
         Bukkit.getPluginManager().registerEvents(new EventListener(), this);
         this.getCommand("qhat").setExecutor(new Commands(this));
+        this.getCommand("qhat").setTabCompleter(new Commands(this));
 
         scoreboard = new QHatScoreboard(this);
         scoreboard.setupScoreboard();
