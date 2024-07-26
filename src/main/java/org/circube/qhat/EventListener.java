@@ -111,21 +111,21 @@ public class EventListener implements Listener {
                         if (speedAttribute != null) {
                             speedAttribute.setBaseValue(speedAttribute.getBaseValue() * 1.07);
                         }
-                        player.sendMessage(ChatColor.GREEN + "已增加5%移速！");
+                        player.sendMessage(ChatColor.GREEN + "已增加7%移速！");
                         break;
                     case "增加12%击退":
                         AttributeInstance knockbackAttribute = player.getAttribute(Attribute.GENERIC_ATTACK_KNOCKBACK);
                         if (knockbackAttribute != null) {
                             knockbackAttribute.setBaseValue(knockbackAttribute.getBaseValue() + 0.12);
                         }
-                        player.sendMessage(ChatColor.YELLOW + "已增加10%击退！");
+                        player.sendMessage(ChatColor.YELLOW + "已增加12%击退！");
                         break;
                     case "增加0.5攻击力":
                         AttributeInstance attackAttribute = player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
                         if (attackAttribute != null) {
                             attackAttribute.setBaseValue(attackAttribute.getBaseValue() + 0.5);
                         }
-                        player.sendMessage(ChatColor.YELLOW + "已增加10%击退！");
+                        player.sendMessage(ChatColor.YELLOW + "已增加0.5攻击力！");
                         break;
                     case "下回合获得2个TNT":
                         QHat.addExtraItem(player.getUniqueId(), new ItemStack(Material.TNT, 2));

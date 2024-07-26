@@ -292,6 +292,18 @@ public class Commands implements CommandExecutor, TabCompleter {
             healthAttribute.setBaseValue(20.0);
             player.setHealth(20.0);
         }
+
+        AttributeInstance knockbackAttribute = player.getAttribute(Attribute.GENERIC_ATTACK_KNOCKBACK);
+        if (knockbackAttribute != null) {
+            knockbackAttribute.setBaseValue(0);
+        }
+
+        AttributeInstance attackAttribute = player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
+        if (attackAttribute != null) {
+            attackAttribute.setBaseValue(1.0);
+        }
+
+        QHat.removeExtraItem(player.getUniqueId());
     }
 
     public void openAbilityGUI(Player player) {
