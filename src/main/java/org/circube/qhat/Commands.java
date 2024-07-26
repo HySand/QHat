@@ -1,12 +1,12 @@
 package org.circube.qhat;
 
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
-import org.bukkit.Color;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
-import org.bukkit.command.*;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -18,9 +18,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.awt.*;
 import java.util.*;
-import java.util.List;
 
 public class Commands implements CommandExecutor, TabCompleter {
     private final QHat plugin;
@@ -132,6 +130,7 @@ public class Commands implements CommandExecutor, TabCompleter {
         }.runTaskLater(plugin, 3630);
         timerTask = new BukkitRunnable() {
             int timeLeft = 181;
+
             @Override
             public void run() {
                 if (timeLeft <= 0) {

@@ -7,7 +7,6 @@ import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
-import org.circube.qhat.QHat;
 
 public class QHatScoreboard {
     private Scoreboard scoreboard;

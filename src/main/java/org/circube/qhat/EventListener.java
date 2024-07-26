@@ -154,9 +154,9 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onPlaceTNT(BlockPlaceEvent event) {
-        if (event.getBlock().getType()  == Material.TNT) {
+        if (event.getBlock().getType() == Material.TNT) {
             event.getBlock().setType(Material.AIR);
-            ((TNTPrimed)(event.getBlock().getWorld().spawnEntity(event.getBlock().getLocation(), EntityType.PRIMED_TNT))).setFuseTicks(25);
+            ((TNTPrimed) (event.getBlock().getWorld().spawnEntity(event.getBlock().getLocation(), EntityType.PRIMED_TNT))).setFuseTicks(25);
         }
     }
 
