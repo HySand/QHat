@@ -6,6 +6,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
@@ -16,18 +17,32 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.inventory.Inventory;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 public class EventListener implements Listener {
+    private final QHat plugin;
+    private final Set<UUID> invinciblePlayers = new HashSet<>();
+
+    public EventListener(QHat plugin) {
+        this.plugin = plugin;
+    }
 
     @EventHandler
     public void onPlayerDamage(EntityDamageByEntityEvent event) {
-        if (event.getEntity() instanceof Player victim
-                && event.getDamager() instanceof Player attacker) {
+        if ((event.getEntity() instanceof Player victim
+                && event.getDamager() instanceof Player attacker)) {
+            if (invinciblePlayers.contains(victim.getUniqueId())) {
+                event.setCancelled(true);
+                return;
+            }
             ItemStack helmet = victim.getInventory().getHelmet();
             if (helmet != null && helmet.getType() == Material.TURTLE_HELMET) {
                 switchHelmet(victim, attacker, helmet);
@@ -138,26 +153,26 @@ public class EventListener implements Listener {
                         player.sendMessage(ChatColor.YELLOW + "已增加0.5攻击力！");
                         break;
                     case FIRE_CHARGE:
-                        QHat.addExtraItem(player.getUniqueId(), new ItemStack(Material.FIRE_CHARGE, 2));
+                        plugin.addExtraItem(player.getUniqueId(), new ItemStack(Material.FIRE_CHARGE, 2));
                         player.sendMessage(ChatColor.DARK_RED + "你将在下回合获得2枚火焰弹！");
                         break;
                     case ARROW:
-                        QHat.addExtraItem(player.getUniqueId(), new ItemStack(Material.ARROW, 8));
+                        plugin.addExtraItem(player.getUniqueId(), new ItemStack(Material.ARROW, 8));
                         player.sendMessage(ChatColor.DARK_GREEN + "你将在下回合获得16支箭！");
                         break;
                     case ENDER_PEARL:
-                        QHat.addExtraItem(player.getUniqueId(), new ItemStack(Material.ENDER_PEARL, 1));
+                        plugin.addExtraItem(player.getUniqueId(), new ItemStack(Material.ENDER_PEARL, 1));
                         player.sendMessage(ChatColor.DARK_PURPLE + "你将在下回合获得3颗末影珍珠！");
                         break;
                     case SHEARS:
-                        QHat.addExtraItem(player.getUniqueId(), new ItemStack(Material.SHEARS, 1));
+                        plugin.addExtraItem(player.getUniqueId(), new ItemStack(Material.SHEARS, 1));
                         player.sendMessage(ChatColor.GOLD + "你将在下回合获得剪刀！");
                         break;
                     default:
                         player.sendMessage(ChatColor.WHITE + "未知的属性选择！");
                         break;
                 }
-                QHat.addAsSelected(player.getUniqueId());
+                plugin.addAsSelected(player.getUniqueId());
                 player.closeInventory();
             }
         }
@@ -168,12 +183,42 @@ public class EventListener implements Listener {
         event.blockList().clear();
     }
 
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        Player player = event.getPlayer();
+
+        if (event.getAction().toString().contains("RIGHT_CLICK")) {
+            ItemStack itemInHand = event.getItem();
+            if (itemInHand != null && itemInHand.getType() == Material.FIRE_CHARGE) {
+                Fireball fireball = player.launchProjectile(Fireball.class);
+                fireball.setIsIncendiary(false);
+                fireball.setYield(18.0f);
+
+                event.setCancelled(true);
+
+                if (itemInHand.getAmount() > 1) {
+                    itemInHand.setAmount(itemInHand.getAmount() - 1);
+                } else {
+                    player.getInventory().setItemInMainHand(null);
+                }
+            }
+        }
+    }
+
     private void switchHelmet(Player victim, Player attacker, ItemStack helmet) {
         attacker.getInventory().setHelmet(helmet);
-        attacker.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 35, 2));
+        attacker.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 15, 2));
         victim.getInventory().setHelmet(null);
         attacker.setGlowing(true);
         victim.setGlowing(false);
+        UUID uuid = attacker.getUniqueId();
+        invinciblePlayers.add(uuid);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                invinciblePlayers.remove(uuid);
+            }
+        }.runTaskLater(plugin,  15);
         Bukkit.broadcastMessage(ChatColor.YELLOW + attacker.getDisplayName() + "§f夺取了" + ChatColor.YELLOW + victim.getDisplayName() + "§f的终极绿帽！");
     }
 }

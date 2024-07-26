@@ -12,13 +12,13 @@ public final class QHat extends JavaPlugin {
     private QHatScoreboard scoreboard;
     private final Map<UUID, Long> confirmationMap = new HashMap<>();
     private boolean ACTIVATED = false;
-    private static final Map<UUID, ItemStack> extraItems = new HashMap<>();
-    private static final Set<UUID> selectedUUID = new HashSet<>();
+    private final Map<UUID, ItemStack> extraItems = new HashMap<>();
+    private final Set<UUID> selectedUUID = new HashSet<>();
 
     @Override
     public void onEnable() {
         // Plugin startup logic
-        Bukkit.getPluginManager().registerEvents(new EventListener(), this);
+        Bukkit.getPluginManager().registerEvents(new EventListener(this), this);
         this.getCommand("qhat").setExecutor(new Commands(this));
         this.getCommand("qhat").setTabCompleter(new Commands(this));
 
@@ -49,26 +49,26 @@ public final class QHat extends JavaPlugin {
         ACTIVATED = status;
     }
 
-    public static void addExtraItem(UUID uuid, ItemStack itemStack) {
+    public void addExtraItem(UUID uuid, ItemStack itemStack) {
         extraItems.putIfAbsent(uuid, itemStack);
     }
 
-    public static void removeExtraItem(UUID uuid) {
+    public void removeExtraItem(UUID uuid) {
         extraItems.remove(uuid);
     }
 
-    public static ItemStack getExtraItem(UUID uuid) {
+    public ItemStack getExtraItem(UUID uuid) {
         return extraItems.getOrDefault(uuid, null);
     }
-    public static void addAsSelected(UUID uuid) {
+    public void addAsSelected(UUID uuid) {
         selectedUUID.add(uuid);
     }
 
-    public static boolean isSelected(UUID uuid) {
+    public boolean isSelected(UUID uuid) {
         return selectedUUID.contains(uuid);
     }
 
-    public static void clearSelected() {
+    public void clearSelected() {
         selectedUUID.clear();
     }
 }

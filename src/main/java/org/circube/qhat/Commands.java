@@ -35,6 +35,7 @@ public class Commands implements CommandExecutor, TabCompleter {
             "下回合获得3颗末影珍珠",
             "下回合获得剪刀"
     );
+    List<String> selectedAttributes = new ArrayList<>();
 
     private static final Material[] WOOL_TYPES = {
             Material.WHITE_WOOL, Material.ORANGE_WOOL, Material.MAGENTA_WOOL, Material.LIGHT_BLUE_WOOL,
@@ -115,8 +116,25 @@ public class Commands implements CommandExecutor, TabCompleter {
             player.closeInventory();
             player.sendTitle(ChatColor.GREEN + "游戏开始", ChatColor.GREEN + "抓住戴帽子的胖揍他", 15, 45, 30);
         }
+        startTasks();
         giveRandomPlayerHelmet(sender);
         plugin.setStatus(true);
+    }
+
+    private void stopActivity() {
+        cancelTasks();
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            clearInventory(player);
+            removeHelmets(player);
+            plugin.getScoreboard().resetScore(player);
+            resetAttributes(player);
+            stopBGM(player);
+            clearEffect(player);
+        }
+        plugin.setStatus(false);
+    }
+
+    private void startTasks() {
         activityTask = new BukkitRunnable() {
             @Override
             public void run() {
@@ -125,18 +143,17 @@ public class Commands implements CommandExecutor, TabCompleter {
                     clearInventory(player);
                     removeHelmets(player);
                     stopBGM(player);
+                    selectedAttributes = getRandomAttributes();
                     player.sendTitle(ChatColor.GREEN + "时间到", ChatColor.GREEN + "先休息一下吧", 15, 45, 30);
                 }
-
-
             }
-        }.runTaskLater(plugin, 3630);
+        }.runTaskLater(plugin, 3620);
         timerTask = new BukkitRunnable() {
-            int timeLeft = 181;
+            int timeLeft = 180;
 
             @Override
             public void run() {
-                if (timeLeft <= 0) {
+                if (timeLeft < 0) {
                     cancel();
                     return;
                 }
@@ -162,27 +179,14 @@ public class Commands implements CommandExecutor, TabCompleter {
             @Override
             public void run() {
                 for (Player player : Bukkit.getOnlinePlayers()) {
-                    if (QHat.isSelected(player.getUniqueId())) {
-                        return;
+                    if (plugin.isSelected(player.getUniqueId()) || player.getOpenInventory().getTitle().equals("选择一项加成")) {
+                        continue;
                     }
                     openAbilityGUI(player);
                 }
 
             }
-        }.runTaskTimer(plugin, 3700, 5);
-    }
-
-    private void stopActivity() {
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            clearInventory(player);
-            removeHelmets(player);
-            plugin.getScoreboard().resetScore(player);
-            resetAttributes(player);
-            stopBGM(player);
-            clearEffect(player);
-        }
-        cancelTasks();
-        plugin.setStatus(false);
+        }.runTaskTimer(plugin, 3700, 10);
     }
 
     private void cancelTasks() {
@@ -197,6 +201,7 @@ public class Commands implements CommandExecutor, TabCompleter {
         }
         if (activityTask != null && !activityTask.isCancelled()) {
             activityTask.cancel();
+            plugin.clearSelected();
         }
     }
 
@@ -254,9 +259,9 @@ public class Commands implements CommandExecutor, TabCompleter {
 
             UUID uuid = player.getUniqueId();
 
-            if (QHat.getExtraItem(uuid) != null) {
-                inventory.addItem(QHat.getExtraItem(uuid));
-                QHat.removeExtraItem(uuid);
+            if (plugin.getExtraItem(uuid) != null) {
+                inventory.addItem(plugin.getExtraItem(uuid));
+                plugin.removeExtraItem(uuid);
             }
         }
 
@@ -319,7 +324,7 @@ public class Commands implements CommandExecutor, TabCompleter {
         player.removePotionEffect(PotionEffectType.JUMP);
     }
 
-    public static void resetAttributes(Player player) {
+    public void resetAttributes(Player player) {
         AttributeInstance speedAttribute = player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
         if (speedAttribute != null) {
             speedAttribute.setBaseValue(0.1);
@@ -341,7 +346,7 @@ public class Commands implements CommandExecutor, TabCompleter {
             attackAttribute.setBaseValue(1.0);
         }
 
-        QHat.removeExtraItem(player.getUniqueId());
+        plugin.removeExtraItem(player.getUniqueId());
     }
 
     public void openAbilityGUI(Player player) {
@@ -349,12 +354,10 @@ public class Commands implements CommandExecutor, TabCompleter {
             player.playSound(player, Sound.BLOCK_BEACON_ACTIVATE, SoundCategory.NEUTRAL, 1f, 1f);
             Inventory gui = Bukkit.createInventory(null, 27, "选择一项加成");
 
-            List<String> selectedAttributes = getRandomAttributes();
-
             for (int i = 0; i < selectedAttributes.size(); i++) {
                 String attribute = selectedAttributes.get(i);
                 ItemStack button = createAttributeButton(attribute);
-                gui.setItem(12 + i * 2, button);
+                gui.setItem(11 + i * 2, button);
             }
 
             player.openInventory(gui);
@@ -364,7 +367,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 
     private List<String> getRandomAttributes() {
         Collections.shuffle(ABILITIES);
-        return ABILITIES.subList(0, 2);
+        return ABILITIES.subList(0, 3);
     }
 
     private ItemStack createAttributeButton(String attributeName) {
