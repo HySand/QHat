@@ -207,7 +207,8 @@ public class EventListener implements Listener {
 
     private void switchHelmet(Player victim, Player attacker, ItemStack helmet) {
         attacker.getInventory().setHelmet(helmet);
-        attacker.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 15, 2));
+        attacker.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 15, 2, true, false));
+        attacker.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 15, 1));
         victim.getInventory().setHelmet(null);
         attacker.setGlowing(true);
         victim.setGlowing(false);
@@ -218,7 +219,7 @@ public class EventListener implements Listener {
             public void run() {
                 invinciblePlayers.remove(uuid);
             }
-        }.runTaskLater(plugin,  15);
+        }.runTaskLater(plugin, 15);
         Bukkit.broadcastMessage(ChatColor.YELLOW + attacker.getDisplayName() + "§f夺取了" + ChatColor.YELLOW + victim.getDisplayName() + "§f的终极绿帽！");
     }
 }

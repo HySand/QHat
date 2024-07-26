@@ -60,6 +60,7 @@ public final class QHat extends JavaPlugin {
     public ItemStack getExtraItem(UUID uuid) {
         return extraItems.getOrDefault(uuid, null);
     }
+
     public void addAsSelected(UUID uuid) {
         selectedUUID.add(uuid);
     }

@@ -8,6 +8,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -109,6 +110,7 @@ public class Commands implements CommandExecutor, TabCompleter {
     private void startActivity(CommandSender sender) {
         cancelTasks();
         for (Player player : Bukkit.getOnlinePlayers()) {
+            player.setHealth(player.getMaxHealth());
             initInventory(player);
             removeHelmets(player);
             stopBGM(player);
@@ -123,6 +125,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 
     private void stopActivity() {
         cancelTasks();
+        clearAllDrops();
         for (Player player : Bukkit.getOnlinePlayers()) {
             clearInventory(player);
             removeHelmets(player);
@@ -169,7 +172,7 @@ public class Commands implements CommandExecutor, TabCompleter {
             public void run() {
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     addEffect(player);
-                    player.sendTitle(ChatColor.RED + "!狂暴模式!", "", 3, 15, 5);
+                    player.sendTitle(ChatColor.RED + "⚠狂暴模式⚠", "", 3, 15, 5);
                 }
 
             }
@@ -415,5 +418,13 @@ public class Commands implements CommandExecutor, TabCompleter {
         meta.setDisplayName(displayName);
         button.setItemMeta(meta);
         return button;
+    }
+
+    public void clearAllDrops() {
+        for (World world : Bukkit.getWorlds()) {
+            for (Item item : world.getEntitiesByClass(Item.class)) {
+                item.remove();
+            }
+        }
     }
 }
