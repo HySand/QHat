@@ -10,13 +10,8 @@ import org.bukkit.scoreboard.ScoreboardManager;
 import org.circube.qhat.QHat;
 
 public class QHatScoreboard {
-    private final QHat plugin;
     private Scoreboard scoreboard;
     private Objective objective;
-
-    public QHatScoreboard(QHat plugin) {
-        this.plugin = plugin;
-    }
 
     public void setupScoreboard() {
         ScoreboardManager manager = Bukkit.getScoreboardManager();

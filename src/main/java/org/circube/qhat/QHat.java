@@ -23,7 +23,7 @@ public final class QHat extends JavaPlugin {
         this.getCommand("qhat").setExecutor(new Commands(this));
         this.getCommand("qhat").setTabCompleter(new Commands(this));
 
-        scoreboard = new QHatScoreboard(this);
+        scoreboard = new QHatScoreboard();
         scoreboard.setupScoreboard();
 
         new QHatScoreboardTask(this, scoreboard).runTaskTimer(this, 0, 10);

@@ -1,6 +1,9 @@
 package org.circube.qhat;
 
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
+import org.bukkit.Color;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.command.*;
@@ -15,10 +18,13 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class Commands implements CommandExecutor, TabCompleter {
     private final QHat plugin;
+    private BukkitTask activityTask;
     private BukkitTask timerTask;
     private BukkitTask rageTask;
     private BukkitTask abilityTask;
@@ -101,17 +107,17 @@ public class Commands implements CommandExecutor, TabCompleter {
     }
 
     private void startActivity(CommandSender sender) {
+        giveRandomPlayerHelmet(sender);
         for (Player player : Bukkit.getOnlinePlayers()) {
             initInventory(player);
             removeHelmets(player);
-            giveRandomPlayerHelmet(sender);
             stopBGM(player);
             playBGM(player);
             player.sendTitle("游戏开始", "抓住戴帽子的胖揍他", 15, 45, 30);
         }
 
         plugin.setStatus(true);
-        timerTask = new BukkitRunnable() {
+        activityTask = new BukkitRunnable() {
             @Override
             public void run() {
                 plugin.setStatus(false);
@@ -125,6 +131,20 @@ public class Commands implements CommandExecutor, TabCompleter {
 
             }
         }.runTaskLater(plugin, 3630);
+        timerTask = new BukkitRunnable() {
+            int timeLeft = 181;
+            @Override
+            public void run() {
+                if (timeLeft <= 0) {
+                    cancel();
+                    return;
+                }
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    player.setLevel(timeLeft);
+                }
+                timeLeft--;
+            }
+        }.runTaskTimer(plugin, 0, 20);
         rageTask = new BukkitRunnable() {
             @Override
             public void run() {
@@ -155,10 +175,12 @@ public class Commands implements CommandExecutor, TabCompleter {
             stopBGM(player);
             clearEffect(player);
         }
-
-        timerTask.cancel();
-        rageTask.cancel();
-        abilityTask.cancel();
+        if (plugin.getStatus()) {
+            activityTask.cancel();
+            timerTask.cancel();
+            rageTask.cancel();
+            abilityTask.cancel();
+        }
         plugin.setStatus(false);
     }
 
@@ -328,7 +350,6 @@ public class Commands implements CommandExecutor, TabCompleter {
     }
 
     private List<String> getRandomAttributes() {
-        // 随机打乱列表并取前两个
         Collections.shuffle(ABILITIES);
         return ABILITIES.subList(0, 2);
     }
