@@ -1,5 +1,5 @@
 name: QHat
-version: '1.4'
+version: '1.5'
 main: org.circube.qhat.QHat
 api-version: '1.20'
 commands:

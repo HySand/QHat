@@ -14,7 +14,7 @@ public final class QHat extends JavaPlugin {
     private QHatScoreboard scoreboard;
     private final Map<UUID, Long> confirmationMap = new HashMap<>();
     private boolean ACTIVATED = false;
-    private static Map<UUID, ItemStack> extraItems;
+    private static final Map<UUID, ItemStack> extraItems = new HashMap<>();
 
     @Override
     public void onEnable() {

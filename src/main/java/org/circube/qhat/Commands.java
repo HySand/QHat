@@ -3,10 +3,7 @@ package org.circube.qhat;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
+import org.bukkit.command.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -56,7 +53,7 @@ public class Commands implements CommandExecutor, TabCompleter {
             Map<UUID, Long> confirmationMap = plugin.getConfirmationMap();
             UUID uuid = ((Player) sender).getUniqueId();
 
-            if (Objects.equals(args[0], "start")) {
+            if (Objects.equals(args[0].toLowerCase(), "start")) {
                 if (plugin.getStatus()) {
                     sender.sendMessage(ChatColor.RED + "已经开始了。");
                     return true;
@@ -67,7 +64,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 
             }
 
-            if (Objects.equals(args[0], "stop")) {
+            if (Objects.equals(args[0].toLowerCase(), "stop")) {
                 confirmationMap.putIfAbsent(uuid, System.currentTimeMillis());
                 sender.sendMessage("请在15秒内输入/qhat confirm来确认停止。");
                 Bukkit.getScheduler().runTaskLater(plugin, () -> confirmationMap.remove(uuid), 300);
@@ -91,8 +88,14 @@ public class Commands implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String s, String[] args) {
-        if (sender instanceof Player) {
-            if (args.length == 0) return List.of("start", "stop", "confirm");
+        if (sender instanceof Player && command.getName().equalsIgnoreCase("qhat")) {
+            List<String> autoCompletes = new ArrayList<>();
+            if (args.length == 1) {
+                autoCompletes.add("start");
+                autoCompletes.add("stop");
+                autoCompletes.add("confirm");
+                return autoCompletes;
+            }
         }
         return null;
     }
@@ -332,41 +335,40 @@ public class Commands implements CommandExecutor, TabCompleter {
 
     private ItemStack createAttributeButton(String attributeName) {
         Material material;
-        String displayName;
-        switch (attributeName) {
-            case "增加3点生命值":
+        String displayName = switch (attributeName) {
+            case "增加3点生命值" -> {
                 material = Material.APPLE;
-                displayName = ChatColor.RED + attributeName;
-                break;
-            case "增加7%移速":
+                yield ChatColor.RED + attributeName;
+            }
+            case "增加7%移速" -> {
                 material = Material.FEATHER;
-                displayName = ChatColor.GREEN + attributeName;
-                break;
-            case "增加12%击退":
+                yield ChatColor.GREEN + attributeName;
+            }
+            case "增加12%击退" -> {
                 material = Material.STICK;
-                displayName = ChatColor.AQUA + attributeName;
-                break;
-            case "增加0.5攻击力":
+                yield ChatColor.AQUA + attributeName;
+            }
+            case "增加0.5攻击力" -> {
                 material = Material.IRON_AXE;
-                displayName = ChatColor.YELLOW + attributeName;
-                break;
-            case "下回合获得2个TNT":
+                yield ChatColor.YELLOW + attributeName;
+            }
+            case "下回合获得2个TNT" -> {
                 material = Material.TNT;
-                displayName = ChatColor.DARK_RED + attributeName;
-                break;
-            case "下回合获得16支箭":
+                yield ChatColor.DARK_RED + attributeName;
+            }
+            case "下回合获得16支箭" -> {
                 material = Material.ARROW;
-                displayName = ChatColor.DARK_GREEN + attributeName;
-                break;
-            case "下回合获得3颗末影珍珠":
+                yield ChatColor.DARK_GREEN + attributeName;
+            }
+            case "下回合获得3颗末影珍珠" -> {
                 material = Material.ENDER_PEARL;
-                displayName = ChatColor.DARK_PURPLE + attributeName;
-                break;
-            default:
+                yield ChatColor.DARK_PURPLE + attributeName;
+            }
+            default -> {
                 material = Material.BARRIER;
-                displayName = ChatColor.WHITE + "未知属性";
-                break;
-        }
+                yield ChatColor.WHITE + "未知属性";
+            }
+        };
         ItemStack button = new ItemStack(material);
         ItemMeta meta = button.getItemMeta();
         meta.setDisplayName(displayName);

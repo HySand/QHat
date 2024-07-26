@@ -92,7 +92,7 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getView().getTitle().equals("Custom GUI")) {
+        if (event.getView().getTitle().equals("选择一项加成")) {
             event.setCancelled(true);
             Player player = (Player) event.getWhoClicked();
 
@@ -143,6 +143,7 @@ public class EventListener implements Listener {
                         player.sendMessage(ChatColor.WHITE + "未知的属性选择！");
                         break;
                 }
+                player.closeInventory();
             }
         }
     }
