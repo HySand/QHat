@@ -55,7 +55,7 @@ public class EventListener implements Listener {
                 && event.getDamager() instanceof Projectile projectile
                 && projectile.getShooter() instanceof Player attacker
                 && victim.getHealth() - event.getFinalDamage() <= 0) {
-            if (attacker != victim) return;
+            if (attacker == victim) return;
             ItemStack helmet = victim.getInventory().getHelmet();
             if (helmet != null && helmet.getType() == Material.TURTLE_HELMET) {
                 switchHelmet(victim, attacker, helmet);
