@@ -126,7 +126,6 @@ public class Commands implements CommandExecutor, TabCompleter {
 
     private void stopActivity() {
         cancelTasks();
-        clearAllDrops();
         for (Player player : Bukkit.getOnlinePlayers()) {
             clearInventory(player);
             removeHelmets(player);
@@ -419,13 +418,5 @@ public class Commands implements CommandExecutor, TabCompleter {
         meta.setDisplayName(displayName);
         button.setItemMeta(meta);
         return button;
-    }
-
-    public void clearAllDrops() {
-        for (World world : Bukkit.getWorlds()) {
-            for (Item item : world.getEntitiesByClass(Item.class)) {
-                item.remove();
-            }
-        }
     }
 }

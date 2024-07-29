@@ -17,6 +17,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -149,7 +150,7 @@ public class EventListener implements Listener {
                     case IRON_AXE:
                         AttributeInstance attackAttribute = player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
                         if (attackAttribute != null) {
-                            attackAttribute.setBaseValue(attackAttribute.getBaseValue() + 1);
+                            attackAttribute.setBaseValue(attackAttribute.getBaseValue() + 1.5);
                         }
                         player.sendMessage(ChatColor.YELLOW + "已增加1.5攻击力！");
                         break;
@@ -204,6 +205,11 @@ public class EventListener implements Listener {
                 }
             }
         }
+    }
+
+    @EventHandler
+    public void onPlayerDropItem(PlayerDropItemEvent event) {
+        event.setCancelled(true);
     }
 
     private void switchHelmet(Player victim, Player attacker, ItemStack helmet) {
