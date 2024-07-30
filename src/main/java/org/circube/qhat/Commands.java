@@ -72,7 +72,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 
             }
 
-            if (Objects.equals(args[0].toLowerCase(), "stop")) {
+            if (Objects.equals(args[0].toLowerCase(), "reset")) {
                 confirmationMap.putIfAbsent(uuid, System.currentTimeMillis());
                 sender.sendMessage("请在15秒内输入/qhat confirm来确认停止。");
                 Bukkit.getScheduler().runTaskLater(plugin, () -> confirmationMap.remove(uuid), 300);
@@ -82,10 +82,10 @@ public class Commands implements CommandExecutor, TabCompleter {
             if (Objects.equals(args[0], "confirm")) {
                 if (confirmationMap.containsKey(uuid)) {
                     stopActivity();
-                    sender.sendMessage("结束了游戏");
+                    sender.sendMessage("重置了游戏");
                     return true;
                 } else {
-                    sender.sendMessage(ChatColor.RED + "当前没有结束任务，请先输入/qhat stop结束。");
+                    sender.sendMessage(ChatColor.RED + "当前没有重置指令，请先输入/qhat reset。");
                     return true;
                 }
 
@@ -100,7 +100,7 @@ public class Commands implements CommandExecutor, TabCompleter {
             List<String> autoCompletes = new ArrayList<>();
             if (args.length == 1) {
                 autoCompletes.add("start");
-                autoCompletes.add("stop");
+                autoCompletes.add("reset");
                 autoCompletes.add("confirm");
                 return autoCompletes;
             }
