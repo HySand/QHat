@@ -111,7 +111,6 @@ public class Commands implements CommandExecutor, TabCompleter {
     private void startActivity(CommandSender sender) {
         cancelTasks();
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.setHealth(player.getMaxHealth());
             initInventory(player);
             removeHelmets(player);
             stopBGM(player);
@@ -237,12 +236,13 @@ public class Commands implements CommandExecutor, TabCompleter {
             Bukkit.broadcastMessage(ChatColor.YELLOW + selectedPlayer.getDisplayName() + "§f获得了终极绿帽!");
         } else {
             stopActivity();
-            sender.sendMessage("没有处于生存模式的玩家!");
+            sender.sendMessage(ChatColor.RED + "没有处于生存模式的玩家，游戏停止!");
         }
     }
 
     private void initInventory(Player player) {
         if (player.getGameMode() == GameMode.SURVIVAL) {
+            player.setHealth(player.getMaxHealth());
             player.getInventory().clear();
             Inventory inventory = player.getInventory();
             Random random = new Random();
