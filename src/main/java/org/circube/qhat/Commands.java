@@ -311,7 +311,7 @@ public class Commands implements CommandExecutor, TabCompleter {
     }
 
     private void playBGM(Player player) {
-        player.playSound(player, "activity:now_or_never", SoundCategory.MUSIC, 1f, 1f);
+        player.playSound(player, "activity:now_or_never", SoundCategory.RECORDS, 1f, 1f);
     }
 
     private void stopBGM(Player player) {
