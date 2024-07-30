@@ -110,6 +110,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 
     private void startActivity(CommandSender sender) {
         cancelTasks();
+
         for (Player player : Bukkit.getOnlinePlayers()) {
             initInventory(player);
             removeHelmets(player);
@@ -119,8 +120,8 @@ public class Commands implements CommandExecutor, TabCompleter {
             player.sendTitle(ChatColor.GREEN + "游戏开始", ChatColor.GREEN + "抓住戴帽子的胖揍他", 15, 45, 30);
         }
         startTasks();
-        giveRandomPlayerHelmet(sender);
         plugin.setStatus(true);
+        giveRandomPlayerHelmet(sender);
     }
 
     private void stopActivity() {
