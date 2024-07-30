@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'org.circube'
-version = '1.9'
+version = '1.10'
 
 repositories {
     mavenCentral()
@@ -15,10 +15,16 @@ repositories {
         name = "sonatype"
         url = "https://oss.sonatype.org/content/groups/public/"
     }
+    maven {
+        name = "playpro"
+        url = "https://maven.playpro.com/"
+    }
 }
 
 dependencies {
     compileOnly("org.spigotmc:spigot-api:1.20.1-R0.1-SNAPSHOT")
+
+    compileOnly("net.coreprotect:coreprotect:22.4")
 }
 
 def targetJavaVersion = 17

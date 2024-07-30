@@ -1,11 +1,9 @@
 package org.circube.qhat;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -19,12 +17,17 @@ import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
@@ -72,8 +75,7 @@ public class EventListener implements Listener {
         Player player = event.getPlayer();
         Material blockType = event.getBlock().getType();
         if (player.getGameMode() == GameMode.SURVIVAL) {
-            if (!(blockType == Material.WHITE_WOOL ||
-                    blockType == Material.ORANGE_WOOL ||
+            if (!(blockType == Material.ORANGE_WOOL ||
                     blockType == Material.MAGENTA_WOOL ||
                     blockType == Material.LIGHT_BLUE_WOOL ||
                     blockType == Material.YELLOW_WOOL ||
@@ -87,7 +89,7 @@ public class EventListener implements Listener {
                     blockType == Material.BROWN_WOOL ||
                     blockType == Material.GREEN_WOOL ||
                     blockType == Material.RED_WOOL ||
-                    blockType == Material.BLACK_WOOL)) {
+                    blockType == Material.COBWEB)) {
                 event.setCancelled(true);
             }
         }
@@ -124,57 +126,67 @@ public class EventListener implements Listener {
             Player player = (Player) event.getWhoClicked();
 
             if (event.getCurrentItem() != null) {
-                Material material = event.getCurrentItem().getType();
-                switch (material) {
-                    case APPLE:
+                String itemFlag = event.getCurrentItem().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(plugin, "button"), PersistentDataType.STRING);
+                switch (itemFlag) {
+                    case "health":
                         AttributeInstance healthAttribute = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
                         if (healthAttribute != null) {
                             healthAttribute.setBaseValue(healthAttribute.getBaseValue() + 3.0);
                         }
                         player.sendMessage(ChatColor.RED + "已增加3点生命值！");
                         break;
-                    case FEATHER:
+                    case "speed":
                         AttributeInstance speedAttribute = player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
                         if (speedAttribute != null) {
                             speedAttribute.setBaseValue(speedAttribute.getBaseValue() * 1.07);
                         }
                         player.sendMessage(ChatColor.GREEN + "已增加7%移速！");
                         break;
-                    case STICK:
+                    case "knockback":
                         AttributeInstance knockbackAttribute = player.getAttribute(Attribute.GENERIC_ATTACK_KNOCKBACK);
                         if (knockbackAttribute != null) {
                             knockbackAttribute.setBaseValue(knockbackAttribute.getBaseValue() + 0.12);
                         }
                         player.sendMessage(ChatColor.AQUA + "已增加12%击退！");
                         break;
-                    case IRON_AXE:
+                    case "damage":
                         AttributeInstance attackAttribute = player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
                         if (attackAttribute != null) {
                             attackAttribute.setBaseValue(attackAttribute.getBaseValue() + 1.5);
                         }
                         player.sendMessage(ChatColor.YELLOW + "已增加1.5攻击力！");
                         break;
-                    case FIRE_CHARGE:
-                        plugin.addExtraItem(player.getUniqueId(), new ItemStack(Material.FIRE_CHARGE, 2));
-                        player.sendMessage(ChatColor.DARK_RED + "你将在下回合获得2枚火焰弹！");
+                    case "fire_charge":
+                        plugin.addExtraItem(player.getUniqueId(), new ItemStack(Material.FIRE_CHARGE, 1));
+                        player.sendMessage(ChatColor.DARK_RED + "你将在下回合获得火焰弹！");
                         break;
-                    case ARROW:
+                    case "arrow":
                         plugin.addExtraItem(player.getUniqueId(), new ItemStack(Material.ARROW, 8));
                         player.sendMessage(ChatColor.DARK_GREEN + "你将在下回合获得16支箭！");
                         break;
-                    case ENDER_PEARL:
-                        plugin.addExtraItem(player.getUniqueId(), new ItemStack(Material.ENDER_PEARL, 1));
-                        player.sendMessage(ChatColor.DARK_PURPLE + "你将在下回合获得3颗末影珍珠！");
+                    case "end_pearl":
+                        plugin.addExtraItem(player.getUniqueId(), new ItemStack(Material.ENDER_PEARL, 2));
+                        player.sendMessage(ChatColor.DARK_PURPLE + "你将在下回合获得4颗末影珍珠！");
                         break;
-                    case SHEARS:
-                        plugin.addExtraItem(player.getUniqueId(), new ItemStack(Material.SHEARS, 1));
+                    case "shear":
+                        ItemStack itemStack = new ItemStack(Material.SHEARS, 1);
+                        itemStack.addEnchantment(Enchantment.DIG_SPEED, 1);
+                        plugin.addExtraItem(player.getUniqueId(), itemStack);
                         player.sendMessage(ChatColor.GOLD + "你将在下回合获得剪刀！");
                         break;
+                    case "cobweb":
+                        plugin.addExtraItem(player.getUniqueId(), new ItemStack(Material.COBWEB, 1));
+                        player.sendMessage(ChatColor.GRAY + "你将在下回合获得蜘蛛网！");
+                        break;
                     default:
-                        player.sendMessage(ChatColor.WHITE + "未知的属性选择！");
+                        player.sendMessage(ChatColor.WHITE + "未知的加成选择！");
                         break;
                 }
                 plugin.addAsSelected(player.getUniqueId());
+                player.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
+                for (int i = 0; i < 9; i++) {
+                    player.getInventory().addItem(createFancyFirework());
+                }
                 player.closeInventory();
             }
         }
@@ -194,7 +206,7 @@ public class EventListener implements Listener {
             if (itemInHand != null && itemInHand.getType() == Material.FIRE_CHARGE) {
                 Fireball fireball = player.launchProjectile(Fireball.class);
                 fireball.setIsIncendiary(false);
-                fireball.setYield(3.0f);
+                fireball.setYield(4.5f);
 
                 event.setCancelled(true);
 
@@ -210,6 +222,16 @@ public class EventListener implements Listener {
     @EventHandler
     public void onPlayerDropItem(PlayerDropItemEvent event) {
         event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void suppressJoinMessage(PlayerJoinEvent e) {
+        e.setJoinMessage(null);
+    }
+
+    @EventHandler
+    public void suppressQuitMessage(PlayerQuitEvent e) {
+        e.setQuitMessage(null);
     }
 
     private void switchHelmet(Player victim, Player attacker, ItemStack helmet) {
@@ -228,5 +250,31 @@ public class EventListener implements Listener {
             }
         }.runTaskLater(plugin, 15);
         Bukkit.broadcastMessage(ChatColor.YELLOW + attacker.getDisplayName() + "§f夺取了" + ChatColor.YELLOW + victim.getDisplayName() + "§f的终极绿帽！");
+    }
+
+    private ItemStack createFancyFirework() {
+        ItemStack firework = new ItemStack(Material.FIREWORK_ROCKET);
+        FireworkMeta meta = (FireworkMeta) firework.getItemMeta();
+
+        if (meta != null) {
+            Random random = new Random();
+            FireworkEffect.Builder builder = FireworkEffect.builder();
+
+            builder.with(FireworkEffect.Type.values()[random.nextInt(FireworkEffect.Type.values().length)]);
+
+            builder.withColor(Color.fromRGB(random.nextInt(256), random.nextInt(256), random.nextInt(256)));
+            builder.withColor(Color.fromRGB(random.nextInt(256), random.nextInt(256), random.nextInt(256)));
+
+            builder.withFlicker();
+            builder.withTrail();
+
+            meta.addEffect(builder.build());
+
+            meta.setPower(random.nextInt(3) + 1);
+
+            firework.setItemMeta(meta);
+        }
+
+        return firework;
     }
 }
