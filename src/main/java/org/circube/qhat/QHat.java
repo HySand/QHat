@@ -13,11 +13,6 @@ import java.util.*;
 
 public final class QHat extends JavaPlugin {
     private QHatScoreboard scoreboard;
-    private final Map<UUID, Long> confirmationMap = new HashMap<>();
-    private boolean ACTIVATED = false;
-    private final Map<UUID, ItemStack> extraItems = new HashMap<>();
-    private final Set<UUID> selectedUUID = new HashSet<>();
-
     @Override
     public void onEnable() {
         // Plugin startup logic
@@ -38,63 +33,5 @@ public final class QHat extends JavaPlugin {
 
     public QHatScoreboard getScoreboard() {
         return scoreboard;
-    }
-
-    public Map<UUID, Long> getConfirmationMap() {
-        return confirmationMap;
-    }
-
-    public boolean getStatus() {
-        return ACTIVATED;
-    }
-
-    public void setStatus(boolean status) {
-        ACTIVATED = status;
-    }
-
-    public void addExtraItem(UUID uuid, ItemStack itemStack) {
-        extraItems.putIfAbsent(uuid, itemStack);
-    }
-
-    public void removeExtraItem(UUID uuid) {
-        extraItems.remove(uuid);
-    }
-
-    public ItemStack getExtraItem(UUID uuid) {
-        return extraItems.getOrDefault(uuid, null);
-    }
-
-    public void addAsSelected(UUID uuid) {
-        selectedUUID.add(uuid);
-    }
-
-    public boolean isSelected(UUID uuid) {
-        return selectedUUID.contains(uuid);
-    }
-
-    public void clearSelected() {
-        selectedUUID.clear();
-    }
-
-    public CoreProtectAPI getCoreProtect() {
-        Plugin plugin = getServer().getPluginManager().getPlugin("CoreProtect");
-
-        // Check that CoreProtect is loaded
-        if (!(plugin instanceof CoreProtect)) {
-            return null;
-        }
-
-        // Check that the API is enabled
-        CoreProtectAPI CoreProtect = ((CoreProtect) plugin).getAPI();
-        if (!CoreProtect.isEnabled()) {
-            return null;
-        }
-
-        // Check that a compatible version of the API is loaded
-        if (CoreProtect.APIVersion() < 10) {
-            return null;
-        }
-
-        return CoreProtect;
     }
 }

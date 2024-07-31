@@ -4,8 +4,6 @@ import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Explosive;
-import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
@@ -24,10 +22,10 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+
+import static org.circube.qhat.AbilityHandler.addAsSelected;
+import static org.circube.qhat.AbilityHandler.addExtraItem;
 
 public class EventListener implements Listener {
     private final QHat plugin;
@@ -99,7 +97,7 @@ public class EventListener implements Listener {
         if (event.getEntity() instanceof Player player) {
             if (player.getHealth() - event.getFinalDamage() <= 0) {
                 player.setHealth(player.getMaxHealth());
-                player.teleport(player.getWorld().getSpawnLocation());
+                player.teleport(MapHandler.getCurrentSpawnLocation());
             }
         }
     }
@@ -109,6 +107,27 @@ public class EventListener implements Listener {
         if (event.getEntity() instanceof Player) {
             if (event.getCause() == EntityDamageEvent.DamageCause.FALL) {
                 event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+        ItemStack helmet = player.getInventory().getHelmet();
+
+        List<Player> onlinePlayers = (List<Player>) Bukkit.getOnlinePlayers();
+        if (helmet != null) {
+            if (onlinePlayers.isEmpty()) {
+                player.getInventory().setHelmet(null);
+            } else {
+                Player randomPlayer = onlinePlayers.get(new Random().nextInt(onlinePlayers.size()));
+                switchHelmet(player, randomPlayer, helmet);
             }
         }
     }
@@ -151,40 +170,40 @@ public class EventListener implements Listener {
                         player.sendMessage(ChatColor.LIGHT_PURPLE + "已增加1.5攻击力！");
                         break;
                     case "arrow":
-                        plugin.addExtraItem(player.getUniqueId(), new ItemStack(Material.ARROW, 8));
+                        addExtraItem(player.getUniqueId(), new ItemStack(Material.ARROW, 8));
                         player.sendMessage(ChatColor.GOLD + "你将在下回合获得16支箭！");
                         break;
                     case "ender_pearl":
-                        plugin.addExtraItem(player.getUniqueId(), new ItemStack(Material.ENDER_PEARL, 2));
+                        addExtraItem(player.getUniqueId(), new ItemStack(Material.ENDER_PEARL, 2));
                         player.sendMessage(ChatColor.GOLD + "你将在下回合获得4颗末影珍珠！");
                         break;
                     case "shear":
                         ItemStack itemStack = new ItemStack(Material.SHEARS, 1);
                         itemStack.addEnchantment(Enchantment.DIG_SPEED, 3);
-                        plugin.addExtraItem(player.getUniqueId(), itemStack);
+                        addExtraItem(player.getUniqueId(), itemStack);
                         player.sendMessage(ChatColor.GOLD + "你将在下回合获得剪刀！");
                         break;
                     case "cobweb":
-                        plugin.addExtraItem(player.getUniqueId(), new ItemStack(Material.COBWEB, 1));
+                        addExtraItem(player.getUniqueId(), new ItemStack(Material.COBWEB, 1));
                         player.sendMessage(ChatColor.GOLD + "你将在下回合获得蜘蛛网！");
                         break;
                     case "fish_rod":
-                        plugin.addExtraItem(player.getUniqueId(), new ItemStack(Material.FISHING_ROD, 1));
+                        addExtraItem(player.getUniqueId(), new ItemStack(Material.FISHING_ROD, 1));
                         player.sendMessage(ChatColor.GOLD + "你将在下回合获得钓鱼竿！");
                         break;
                     case "shulker_arrow":
-                        plugin.addExtraItem(player.getUniqueId(), new ItemStack(Material.valueOf("ARCHERS_PARADOX_SHULKER_ARROW"), 3));
+                        addExtraItem(player.getUniqueId(), new ItemStack(Material.valueOf("ARCHERS_PARADOX_SHULKER_ARROW"), 3));
                         player.sendMessage(ChatColor.GOLD + "你将在下回合获得3支潜影箭！");
                         break;
                     case "ender_arrow":
-                        plugin.addExtraItem(player.getUniqueId(), new ItemStack(Material.valueOf("ARCHERS_PARADOX_ENDER_ARROW"), 2));
+                        addExtraItem(player.getUniqueId(), new ItemStack(Material.valueOf("ARCHERS_PARADOX_ENDER_ARROW"), 2));
                         player.sendMessage(ChatColor.GOLD + "你将在下回合获得2支末影箭！");
                         break;
                     default:
                         player.sendMessage(ChatColor.WHITE + "未知的加成选择！");
                         break;
                 }
-                plugin.addAsSelected(player.getUniqueId());
+                addAsSelected(player.getUniqueId());
                 player.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
                 for (int i = 0; i < 9; i++) {
                     player.getInventory().addItem(createFancyFirework());
@@ -217,6 +236,11 @@ public class EventListener implements Listener {
     @EventHandler
     public void suppressQuitMessage(PlayerQuitEvent e) {
         e.setQuitMessage(null);
+    }
+
+    @EventHandler
+    public void disableItemDamage(PlayerItemDamageEvent e) {
+        e.setCancelled(true);
     }
 
     private void switchHelmet(Player victim, Player attacker, ItemStack helmet) {
