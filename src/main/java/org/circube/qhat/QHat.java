@@ -1,7 +1,10 @@
 package org.circube.qhat;
 
+import net.coreprotect.CoreProtect;
+import net.coreprotect.CoreProtectAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.circube.qhat.scoreboard.QHatScoreboard;
 import org.circube.qhat.scoreboard.QHatScoreboardTask;
@@ -71,5 +74,27 @@ public final class QHat extends JavaPlugin {
 
     public void clearSelected() {
         selectedUUID.clear();
+    }
+
+    public CoreProtectAPI getCoreProtect() {
+        Plugin plugin = getServer().getPluginManager().getPlugin("CoreProtect");
+
+        // Check that CoreProtect is loaded
+        if (!(plugin instanceof CoreProtect)) {
+            return null;
+        }
+
+        // Check that the API is enabled
+        CoreProtectAPI CoreProtect = ((CoreProtect) plugin).getAPI();
+        if (!CoreProtect.isEnabled()) {
+            return null;
+        }
+
+        // Check that a compatible version of the API is loaded
+        if (CoreProtect.APIVersion() < 10) {
+            return null;
+        }
+
+        return CoreProtect;
     }
 }

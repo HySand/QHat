@@ -4,6 +4,7 @@ import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Explosive;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -48,9 +49,7 @@ public class EventListener implements Listener {
                 return;
             }
             ItemStack helmet = victim.getInventory().getHelmet();
-            if (helmet != null && helmet.getType() == Material.TURTLE_HELMET) {
-                switchHelmet(victim, attacker, helmet);
-            }
+            switchHelmet(victim, attacker, helmet);
             if (attacker.getInventory().getHelmet() == null && victim.getInventory().getHelmet() == null) {
                 event.setCancelled(true);
             }
@@ -61,9 +60,7 @@ public class EventListener implements Listener {
                 && victim.getHealth() - event.getFinalDamage() <= 0) {
             if (attacker == victim) return;
             ItemStack helmet = victim.getInventory().getHelmet();
-            if (helmet != null && helmet.getType() == Material.TURTLE_HELMET) {
-                switchHelmet(victim, attacker, helmet);
-            }
+            switchHelmet(victim, attacker, helmet);
             if (attacker.getInventory().getHelmet() == null && victim.getInventory().getHelmet() == null) {
                 event.setCancelled(true);
             }
@@ -133,50 +130,58 @@ public class EventListener implements Listener {
                         if (healthAttribute != null) {
                             healthAttribute.setBaseValue(healthAttribute.getBaseValue() + 3.0);
                         }
-                        player.sendMessage(ChatColor.RED + "已增加3点生命值！");
+                        player.sendMessage(ChatColor.LIGHT_PURPLE + "已增加3点生命值！");
                         break;
                     case "speed":
                         AttributeInstance speedAttribute = player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
                         if (speedAttribute != null) {
                             speedAttribute.setBaseValue(speedAttribute.getBaseValue() * 1.07);
                         }
-                        player.sendMessage(ChatColor.GREEN + "已增加7%移速！");
+                        player.sendMessage(ChatColor.LIGHT_PURPLE + "已增加7%移速！");
                         break;
                     case "knockback":
                         AttributeInstance knockbackAttribute = player.getAttribute(Attribute.GENERIC_ATTACK_KNOCKBACK);
                         if (knockbackAttribute != null) {
                             knockbackAttribute.setBaseValue(knockbackAttribute.getBaseValue() + 0.12);
                         }
-                        player.sendMessage(ChatColor.AQUA + "已增加12%击退！");
+                        player.sendMessage(ChatColor.LIGHT_PURPLE + "已增加12%击退！");
                         break;
                     case "damage":
                         AttributeInstance attackAttribute = player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
                         if (attackAttribute != null) {
                             attackAttribute.setBaseValue(attackAttribute.getBaseValue() + 1.5);
                         }
-                        player.sendMessage(ChatColor.YELLOW + "已增加1.5攻击力！");
-                        break;
-                    case "fire_charge":
-                        plugin.addExtraItem(player.getUniqueId(), new ItemStack(Material.FIRE_CHARGE, 1));
-                        player.sendMessage(ChatColor.DARK_RED + "你将在下回合获得火焰弹！");
+                        player.sendMessage(ChatColor.LIGHT_PURPLE + "已增加1.5攻击力！");
                         break;
                     case "arrow":
                         plugin.addExtraItem(player.getUniqueId(), new ItemStack(Material.ARROW, 8));
-                        player.sendMessage(ChatColor.DARK_GREEN + "你将在下回合获得16支箭！");
+                        player.sendMessage(ChatColor.GOLD + "你将在下回合获得16支箭！");
                         break;
-                    case "end_pearl":
+                    case "ender_pearl":
                         plugin.addExtraItem(player.getUniqueId(), new ItemStack(Material.ENDER_PEARL, 2));
-                        player.sendMessage(ChatColor.DARK_PURPLE + "你将在下回合获得4颗末影珍珠！");
+                        player.sendMessage(ChatColor.GOLD + "你将在下回合获得4颗末影珍珠！");
                         break;
                     case "shear":
                         ItemStack itemStack = new ItemStack(Material.SHEARS, 1);
-                        itemStack.addEnchantment(Enchantment.DIG_SPEED, 1);
+                        itemStack.addEnchantment(Enchantment.DIG_SPEED, 3);
                         plugin.addExtraItem(player.getUniqueId(), itemStack);
                         player.sendMessage(ChatColor.GOLD + "你将在下回合获得剪刀！");
                         break;
                     case "cobweb":
                         plugin.addExtraItem(player.getUniqueId(), new ItemStack(Material.COBWEB, 1));
-                        player.sendMessage(ChatColor.GRAY + "你将在下回合获得蜘蛛网！");
+                        player.sendMessage(ChatColor.GOLD + "你将在下回合获得蜘蛛网！");
+                        break;
+                    case "fish_rod":
+                        plugin.addExtraItem(player.getUniqueId(), new ItemStack(Material.FISHING_ROD, 1));
+                        player.sendMessage(ChatColor.GOLD + "你将在下回合获得钓鱼竿！");
+                        break;
+                    case "shulker_arrow":
+                        plugin.addExtraItem(player.getUniqueId(), new ItemStack(Material.valueOf("ARCHERS_PARADOX_SHULKER_ARROW"), 2));
+                        player.sendMessage(ChatColor.GOLD + "你将在下回合获得2支潜影箭！");
+                        break;
+                    case "ender_arrow":
+                        plugin.addExtraItem(player.getUniqueId(), new ItemStack(Material.valueOf("ARCHERS_PARADOX_ENDER_ARROW"), 1));
+                        player.sendMessage(ChatColor.GOLD + "你将在下回合获得末影箭！");
                         break;
                     default:
                         player.sendMessage(ChatColor.WHITE + "未知的加成选择！");
@@ -198,6 +203,11 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
+    public void disableEntityRadar(PlayerJoinEvent event) {
+        event.getPlayer().sendMessage("§f§a§i§r§x§a§e§r§o");
+    }
+
+    @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
 
@@ -206,7 +216,7 @@ public class EventListener implements Listener {
             if (itemInHand != null && itemInHand.getType() == Material.FIRE_CHARGE) {
                 Fireball fireball = player.launchProjectile(Fireball.class);
                 fireball.setIsIncendiary(false);
-                fireball.setYield(4.5f);
+                fireball.setYield(5.0f);
 
                 event.setCancelled(true);
 
@@ -235,21 +245,23 @@ public class EventListener implements Listener {
     }
 
     private void switchHelmet(Player victim, Player attacker, ItemStack helmet) {
-        attacker.getInventory().setHelmet(helmet);
-        attacker.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 15, 2, true, false));
-        attacker.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 15, 1));
-        victim.getInventory().setHelmet(null);
-        attacker.setGlowing(true);
-        victim.setGlowing(false);
-        UUID uuid = attacker.getUniqueId();
-        invinciblePlayers.add(uuid);
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                invinciblePlayers.remove(uuid);
-            }
-        }.runTaskLater(plugin, 15);
-        Bukkit.broadcastMessage(ChatColor.YELLOW + attacker.getDisplayName() + "§f夺取了" + ChatColor.YELLOW + victim.getDisplayName() + "§f的终极绿帽！");
+        if (helmet != null && helmet.getType() == Material.TURTLE_HELMET) {
+            attacker.getInventory().setHelmet(helmet);
+            attacker.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 30, 2, true, false));
+            attacker.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 30, 1));
+            victim.getInventory().setHelmet(null);
+            attacker.setGlowing(true);
+            victim.setGlowing(false);
+            UUID uuid = attacker.getUniqueId();
+            invinciblePlayers.add(uuid);
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    invinciblePlayers.remove(uuid);
+                }
+            }.runTaskLater(plugin, 15);
+            Bukkit.broadcastMessage(ChatColor.YELLOW + attacker.getDisplayName() + "§f夺取了" + ChatColor.YELLOW + victim.getDisplayName() + "§f的终极绿帽！");
+        }
     }
 
     private ItemStack createFancyFirework() {

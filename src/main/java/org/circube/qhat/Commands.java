@@ -1,5 +1,6 @@
 package org.circube.qhat;
 
+import net.coreprotect.CoreProtectAPI;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -8,7 +9,10 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -27,18 +31,24 @@ public class Commands implements CommandExecutor, TabCompleter {
     private BukkitTask timerTask;
     private BukkitTask rageTask;
     private BukkitTask abilityTask;
-    private final List<String> ABILITIES = Arrays.asList(
+    private BukkitTask nextRoundTask;
+    private final List<String> ATTRIBUTES = Arrays.asList(
             "增加3点生命值",
             "增加7%移速",
             "增加12%击退",
-            "增加1.5攻击力",
-            "下回合获得火焰弹",
+            "增加1.5攻击力"
+    );
+    private final List<String> TOOLS = Arrays.asList(
             "下回合获得16支箭",
             "下回合获得4颗末影珍珠",
             "下回合获得剪刀",
-            "下回合获得蜘蛛网"
+            "下回合获得蜘蛛网",
+            "下回合获得钓鱼竿",
+            "下回合获得2支潜影箭",
+            "下回合获得末影箭"
     );
     List<String> selectedAttributes = new ArrayList<>();
+    List<String> selectedTools = new ArrayList<>();
 
     private static final Material[] WOOL_TYPES = {
             Material.ORANGE_WOOL, Material.MAGENTA_WOOL, Material.LIGHT_BLUE_WOOL,
@@ -75,21 +85,27 @@ public class Commands implements CommandExecutor, TabCompleter {
 
             if (Objects.equals(args[0].toLowerCase(), "reset")) {
                 confirmationMap.putIfAbsent(uuid, System.currentTimeMillis());
-                sender.sendMessage("请在15秒内输入/qhat confirm来确认重置。");
+                sender.sendMessage("请在15秒内输入/qhat confirm来确认重置。如果你不想重置数据应该使用/qhat pause。");
                 Bukkit.getScheduler().runTaskLater(plugin, () -> confirmationMap.remove(uuid), 300);
+                return true;
+            }
+
+            if (Objects.equals(args[0].toLowerCase(), "pause")) {
+                stopActivity();
+                Bukkit.broadcastMessage(ChatColor.YELLOW + "管理员中止了游戏。");
                 return true;
             }
 
             if (Objects.equals(args[0], "confirm")) {
                 if (confirmationMap.containsKey(uuid)) {
+                    clearPersistedData();
                     stopActivity();
-                    sender.sendMessage("重置了游戏");
+                    Bukkit.broadcastMessage(ChatColor.YELLOW + "管理员重置了游戏。");
                     return true;
                 } else {
                     sender.sendMessage(ChatColor.RED + "当前没有重置指令，请先输入/qhat reset。");
                     return true;
                 }
-
             }
         }
         return false;
@@ -103,6 +119,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                 autoCompletes.add("start");
                 autoCompletes.add("reset");
                 autoCompletes.add("confirm");
+                autoCompletes.add("pause");
             }
             return autoCompletes;
         }
@@ -110,30 +127,67 @@ public class Commands implements CommandExecutor, TabCompleter {
     }
 
     private void startActivity() {
-        cancelTasks();
+        cancelAutoRun();
+        nextRoundTask = new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (Bukkit.getOnlinePlayers().isEmpty()) {
+                    stopActivity();
+                    return;
+                }
+                cancelTasks();
 
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            player.playSound(player, "activity:opening", SoundCategory.RECORDS,1f, 1f);
-        }
-        startTasks();
-        plugin.setStatus(true);
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    player.stopAllSounds();
+                    player.playSound(player, "activity:opening", SoundCategory.RECORDS, 1f, 1f);
+                }
+                startTasks();
+                plugin.setStatus(true);
+            }
+        }.runTaskTimer(plugin, 0, 6000);
     }
 
     private void stopActivity() {
+        cancelAutoRun();
         cancelTasks();
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.closeInventory();
             clearInventory(player);
             removeHelmets(player);
-            plugin.getScoreboard().resetScore(player);
-            resetAttributes(player);
             player.stopAllSounds();
             clearEffect(player);
         }
         plugin.setStatus(false);
     }
 
+    private void clearPersistedData() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            resetAttributes(player);
+            plugin.getScoreboard().resetScore(player);
+        }
+    }
+
     private void startTasks() {
+        timerTask = new BukkitRunnable() {
+            int timeLeft = 201;
+
+            @Override
+            public void run() {
+                if (timeLeft < 0) {
+                    cancel();
+                    return;
+                }
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    if (timeLeft == 201)
+                        player.sendTitle(ChatColor.GREEN + "游戏即将开始", "", 25, 300, 0);
+                    if (timeLeft <= 185 && timeLeft > 180)
+                        player.sendTitle(ChatColor.GREEN + "游戏即将开始", ChatColor.GREEN + "" + ChatColor.BOLD + (timeLeft - 180), 0, 21, 0);
+                    if (timeLeft <= 180) player.setLevel(timeLeft);
+                }
+                timeLeft--;
+            }
+        }.runTaskTimer(plugin, 0, 20);
+
         activityTask = new BukkitRunnable() {
             @Override
             public void run() {
@@ -147,7 +201,8 @@ public class Commands implements CommandExecutor, TabCompleter {
                 }
                 giveRandomPlayerHelmet();
             }
-        }.runTaskLater(plugin, 400);
+        }.runTaskLater(plugin, 405);
+
         endTask = new BukkitRunnable() {
             @Override
             public void run() {
@@ -156,29 +211,14 @@ public class Commands implements CommandExecutor, TabCompleter {
                     clearInventory(player);
                     removeHelmets(player);
                     player.stopAllSounds();
-                    selectedAttributes = getRandomAttributes();
                     player.playSound(player, "activity:turf_master", SoundCategory.RECORDS, 1f, 1f);
+                    selectedAttributes = getRandomAttributes();
+                    selectedTools = getRandomTools();
                     player.sendTitle(ChatColor.GREEN + "时间到", ChatColor.GREEN + "先休息一下吧", 15, 45, 30);
                 }
+                rollBackPlacedBlocks();
             }
         }.runTaskLater(plugin, 4020);
-        timerTask = new BukkitRunnable() {
-            int timeLeft = 201;
-
-            @Override
-            public void run() {
-                if (timeLeft < 0) {
-                    cancel();
-                    return;
-                }
-                for (Player player : Bukkit.getOnlinePlayers()) {
-                    if (timeLeft == 200) player.sendTitle(ChatColor.GREEN + "游戏即将开始", ChatColor.GREEN + "请做好准备", 15, 300, 0);
-                    if (timeLeft <= 185 && timeLeft > 180) player.sendTitle(ChatColor.GREEN + "游戏即将开始", ChatColor.GREEN + "" + ChatColor.BOLD + (timeLeft - 181), 0, 25, 0);
-                    if (timeLeft <= 180) player.setLevel(timeLeft);
-                }
-                timeLeft--;
-            }
-        }.runTaskTimer(plugin, 0, 20);
 
         rageTask = new BukkitRunnable() {
             @Override
@@ -203,6 +243,8 @@ public class Commands implements CommandExecutor, TabCompleter {
 
             }
         }.runTaskTimer(plugin, 4250, 10);
+
+
     }
 
     private void cancelTasks() {
@@ -221,6 +263,12 @@ public class Commands implements CommandExecutor, TabCompleter {
         }
         if (abilityTask != null && !abilityTask.isCancelled()) {
             abilityTask.cancel();
+        }
+    }
+
+    private void cancelAutoRun() {
+        if (nextRoundTask != null && !nextRoundTask.isCancelled()) {
+            nextRoundTask.cancel();
         }
     }
 
@@ -246,11 +294,11 @@ public class Commands implements CommandExecutor, TabCompleter {
 
             ItemStack itemStack = new ItemStack(Material.TURTLE_HELMET);
             itemStack.addEnchantment(Enchantment.BINDING_CURSE, 1);
-            itemStack.getItemMeta().setDisplayName("终极绿帽");
             selectedPlayer.getInventory().setHelmet(itemStack);
             selectedPlayer.setGlowing(true);
             Bukkit.broadcastMessage(ChatColor.YELLOW + selectedPlayer.getDisplayName() + ChatColor.WHITE + "获得了终极绿帽!");
         } else {
+            Bukkit.broadcastMessage(ChatColor.RED+ "由于没有生存模式的玩家，游戏中止。");
             stopActivity();
         }
     }
@@ -269,11 +317,8 @@ public class Commands implements CommandExecutor, TabCompleter {
             inventory.addItem(enderPearls);
 
             Material randomWoolType = WOOL_TYPES[random.nextInt(WOOL_TYPES.length)];
-            ItemStack woolStack = new ItemStack(randomWoolType, 16);
+            ItemStack woolStack = new ItemStack(randomWoolType, 24);
             inventory.addItem(woolStack);
-
-            ItemStack arrows = new ItemStack(Material.ARROW, 8);
-            inventory.addItem(arrows);
 
             UUID uuid = player.getUniqueId();
 
@@ -281,6 +326,9 @@ public class Commands implements CommandExecutor, TabCompleter {
                 inventory.addItem(plugin.getExtraItem(uuid));
                 plugin.removeExtraItem(uuid);
             }
+
+            ItemStack arrows = new ItemStack(Material.ARROW, 8);
+            inventory.addItem(arrows);
         }
 
 
@@ -336,7 +384,13 @@ public class Commands implements CommandExecutor, TabCompleter {
             for (int i = 0; i < selectedAttributes.size(); i++) {
                 String attribute = selectedAttributes.get(i);
                 ItemStack button = createAttributeButton(attribute);
-                gui.setItem(11 + i * 2, button);
+                gui.setItem(13, button);
+            }
+
+            for (int i = 0; i < selectedTools.size(); i++) {
+                String tool = selectedTools.get(i);
+                ItemStack button = createAttributeButton(tool);
+                gui.setItem(11 + i * 4, button);
             }
 
             player.openInventory(gui);
@@ -345,8 +399,13 @@ public class Commands implements CommandExecutor, TabCompleter {
     }
 
     private List<String> getRandomAttributes() {
-        Collections.shuffle(ABILITIES);
-        return ABILITIES.subList(0, 3);
+        Collections.shuffle(ATTRIBUTES);
+        return ATTRIBUTES.subList(0, 1);
+    }
+
+    private List<String> getRandomTools() {
+        Collections.shuffle(TOOLS);
+        return TOOLS.subList(0, 2);
     }
 
     private ItemStack createAttributeButton(String attributeName) {
@@ -356,38 +415,33 @@ public class Commands implements CommandExecutor, TabCompleter {
         switch (attributeName) {
             case "增加3点生命值":
                 material = Material.APPLE;
-                displayName = ChatColor.RED + attributeName;
+                displayName = ChatColor.LIGHT_PURPLE + attributeName;
                 flag = "health";
                 break;
             case "增加7%移速":
                 material = Material.FEATHER;
-                displayName = ChatColor.GREEN + attributeName;
+                displayName = ChatColor.LIGHT_PURPLE + attributeName;
                 flag = "speed";
                 break;
             case "增加12%击退":
                 material = Material.STICK;
-                displayName = ChatColor.AQUA + attributeName;
+                displayName = ChatColor.LIGHT_PURPLE + attributeName;
                 flag = "knockback";
                 break;
             case "增加1.5攻击力":
                 material = Material.IRON_AXE;
-                displayName = ChatColor.YELLOW + attributeName;
+                displayName = ChatColor.LIGHT_PURPLE + attributeName;
                 flag = "damage";
-                break;
-            case "下回合获得火焰弹":
-                material = Material.FIRE_CHARGE;
-                displayName = ChatColor.DARK_RED + attributeName;
-                flag = "fire_charge";
                 break;
             case "下回合获得16支箭":
                 material = Material.ARROW;
-                displayName = ChatColor.DARK_GREEN + attributeName;
+                displayName = ChatColor.GOLD + attributeName;
                 flag = "arrow";
                 break;
             case "下回合获得4颗末影珍珠":
                 material = Material.ENDER_PEARL;
-                displayName = ChatColor.DARK_PURPLE + attributeName;
-                flag = "end_pearl";
+                displayName = ChatColor.GOLD + attributeName;
+                flag = "ender_pearl";
                 break;
             case "下回合获得剪刀":
                 material = Material.SHEARS;
@@ -396,8 +450,23 @@ public class Commands implements CommandExecutor, TabCompleter {
                 break;
             case "下回合获得蜘蛛网":
                 material = Material.COBWEB;
-                displayName = ChatColor.GRAY + attributeName;
+                displayName = ChatColor.GOLD + attributeName;
                 flag = "cobweb";
+                break;
+            case "下回合获得钓鱼竿":
+                material = Material.FISHING_ROD;
+                displayName = ChatColor.GOLD + attributeName;
+                flag = "fish_rod";
+                break;
+            case "下回合获得2支潜影箭":
+                material = Material.valueOf("ARCHERS_PARADOX_SHULKER_ARROW");
+                displayName = ChatColor.GOLD + attributeName;
+                flag = "shulker_arrow";
+                break;
+            case "下回合获得末影箭":
+                material = Material.valueOf("ARCHERS_PARADOX_SHULKER_ARROW");
+                displayName = ChatColor.GOLD + attributeName;
+                flag = "ender_arrow";
                 break;
             default:
                 material = Material.BARRIER;
@@ -411,5 +480,22 @@ public class Commands implements CommandExecutor, TabCompleter {
         meta.setDisplayName(displayName);
         button.setItemMeta(meta);
         return button;
+    }
+
+    private void rollBackPlacedBlocks() {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                try {
+                    CoreProtectAPI api = plugin.getCoreProtect();
+                    if (api == null) return;
+                    Location location = new Location(Bukkit.getWorld("world"), 137, 99, 21);
+                    List<Integer> actionList = new ArrayList<>(Arrays.asList(1, 0));
+                    api.performRollback(200, null, null, null, null, actionList, 100, location);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }.runTaskAsynchronously(plugin);
     }
 }
