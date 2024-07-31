@@ -16,10 +16,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.persistence.PersistentDataType;
@@ -176,12 +173,12 @@ public class EventListener implements Listener {
                         player.sendMessage(ChatColor.GOLD + "你将在下回合获得钓鱼竿！");
                         break;
                     case "shulker_arrow":
-                        plugin.addExtraItem(player.getUniqueId(), new ItemStack(Material.valueOf("ARCHERS_PARADOX_SHULKER_ARROW"), 2));
-                        player.sendMessage(ChatColor.GOLD + "你将在下回合获得2支潜影箭！");
+                        plugin.addExtraItem(player.getUniqueId(), new ItemStack(Material.valueOf("ARCHERS_PARADOX_SHULKER_ARROW"), 3));
+                        player.sendMessage(ChatColor.GOLD + "你将在下回合获得3支潜影箭！");
                         break;
                     case "ender_arrow":
-                        plugin.addExtraItem(player.getUniqueId(), new ItemStack(Material.valueOf("ARCHERS_PARADOX_ENDER_ARROW"), 1));
-                        player.sendMessage(ChatColor.GOLD + "你将在下回合获得末影箭！");
+                        plugin.addExtraItem(player.getUniqueId(), new ItemStack(Material.valueOf("ARCHERS_PARADOX_ENDER_ARROW"), 2));
+                        player.sendMessage(ChatColor.GOLD + "你将在下回合获得2支末影箭！");
                         break;
                     default:
                         player.sendMessage(ChatColor.WHITE + "未知的加成选择！");
@@ -203,34 +200,12 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
-    public void disableEntityRadar(PlayerJoinEvent event) {
-        event.getPlayer().sendMessage("§f§a§i§r§x§a§e§r§o");
-    }
-
-    @EventHandler
-    public void onPlayerInteract(PlayerInteractEvent event) {
-        Player player = event.getPlayer();
-
-        if (event.getAction().toString().contains("RIGHT_CLICK")) {
-            ItemStack itemInHand = event.getItem();
-            if (itemInHand != null && itemInHand.getType() == Material.FIRE_CHARGE) {
-                Fireball fireball = player.launchProjectile(Fireball.class);
-                fireball.setIsIncendiary(false);
-                fireball.setYield(5.0f);
-
-                event.setCancelled(true);
-
-                if (itemInHand.getAmount() > 1) {
-                    itemInHand.setAmount(itemInHand.getAmount() - 1);
-                } else {
-                    player.getInventory().setItemInMainHand(null);
-                }
-            }
-        }
-    }
-
-    @EventHandler
     public void onPlayerDropItem(PlayerDropItemEvent event) {
+        event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onPlayerPickupItem(PlayerPickupArrowEvent event) {
         event.setCancelled(true);
     }
 

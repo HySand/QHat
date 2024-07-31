@@ -9,10 +9,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -44,8 +41,8 @@ public class Commands implements CommandExecutor, TabCompleter {
             "下回合获得剪刀",
             "下回合获得蜘蛛网",
             "下回合获得钓鱼竿",
-            "下回合获得2支潜影箭",
-            "下回合获得末影箭"
+            "下回合获得3支潜影箭",
+            "下回合获得2支末影箭"
     );
     List<String> selectedAttributes = new ArrayList<>();
     List<String> selectedTools = new ArrayList<>();
@@ -180,8 +177,8 @@ public class Commands implements CommandExecutor, TabCompleter {
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     if (timeLeft == 201)
                         player.sendTitle(ChatColor.GREEN + "游戏即将开始", "", 25, 300, 0);
-                    if (timeLeft <= 185 && timeLeft > 180)
-                        player.sendTitle(ChatColor.GREEN + "游戏即将开始", ChatColor.GREEN + "" + ChatColor.BOLD + (timeLeft - 180), 0, 21, 0);
+                    if (timeLeft <= 186 && timeLeft > 181)
+                        player.sendTitle(ChatColor.GREEN + "游戏即将开始", ChatColor.GREEN + "" + ChatColor.BOLD + (timeLeft - 181), 0, 25, 0);
                     if (timeLeft <= 180) player.setLevel(timeLeft);
                 }
                 timeLeft--;
@@ -201,7 +198,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                 }
                 giveRandomPlayerHelmet();
             }
-        }.runTaskLater(plugin, 405);
+        }.runTaskLater(plugin, 400);
 
         endTask = new BukkitRunnable() {
             @Override
@@ -458,12 +455,12 @@ public class Commands implements CommandExecutor, TabCompleter {
                 displayName = ChatColor.GOLD + attributeName;
                 flag = "fish_rod";
                 break;
-            case "下回合获得2支潜影箭":
+            case "下回合获得3支潜影箭":
                 material = Material.valueOf("ARCHERS_PARADOX_SHULKER_ARROW");
                 displayName = ChatColor.GOLD + attributeName;
                 flag = "shulker_arrow";
                 break;
-            case "下回合获得末影箭":
+            case "下回合获得2支末影箭":
                 material = Material.valueOf("ARCHERS_PARADOX_SHULKER_ARROW");
                 displayName = ChatColor.GOLD + attributeName;
                 flag = "ender_arrow";
