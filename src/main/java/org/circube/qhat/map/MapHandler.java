@@ -54,8 +54,10 @@ public class MapHandler {
     }
 
     public static void getRandomMap() {
-        Collections.shuffle(MAPS);
-        currentMap = MAPS.get(0);
+        List<QHatMap> OTHER_MAPS = new ArrayList<>(MAPS);
+        OTHER_MAPS.remove(currentMap);
+        Collections.shuffle(OTHER_MAPS);
+        currentMap = OTHER_MAPS.get(0);
     }
 
     public static Location getCurrentSpawnLocation() {
@@ -70,8 +72,14 @@ public class MapHandler {
         getRandomMap();
         World world = currentMap.getCenterLocation().getWorld();
         world.setTime(currentMap.getMapTime());
-        if (currentMap.isRainy()) world.setWeatherDuration(4000);
-        else world.setClearWeatherDuration(4000);
+        if (currentMap.isRainy()) {
+            world.setStorm(true);
+            world.setWeatherDuration(5950);
+        }
+        else {
+            world.setStorm(false);
+            world.setClearWeatherDuration(5950);
+        }
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.teleport(currentMap.getSpawnLocation());
         }
