@@ -12,11 +12,11 @@ import java.util.*;
 
 import static org.circube.qhat.TaskHandler.*;
 
-public class Commands implements CommandExecutor, TabCompleter {
+public class CommandHandler implements CommandExecutor, TabCompleter {
     private final Map<UUID, Long> confirmationMap = new HashMap<>();
     private final QHat plugin;
 
-    public Commands(QHat plugin) {
+    public CommandHandler(QHat plugin) {
         this.plugin = plugin;
     }
 

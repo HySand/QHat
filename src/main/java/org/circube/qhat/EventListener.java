@@ -96,14 +96,13 @@ public class EventListener implements Listener {
     public void onPlayerDead(EntityDamageEvent event) {
         if (event.getEntity() instanceof Player player) {
             if (player.getHealth() - event.getFinalDamage() <= 0) {
-                player.setHealth(player.getMaxHealth());
-                player.teleport(MapHandler.getCurrentSpawnLocation());
+                respawnPlayer(player);
             }
         }
     }
 
     @EventHandler
-    public void onPlayerFall(EntityDamageEvent event) {
+    public void disableFallDamage(EntityDamageEvent event) {
         if (event.getEntity() instanceof Player) {
             if (event.getCause() == EntityDamageEvent.DamageCause.FALL) {
                 event.setCancelled(true);
@@ -112,8 +111,14 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) {
-
+    public void onPlayerFall(PlayerMoveEvent event) {
+        Player player = event.getPlayer();
+        if (player.getGameMode() == GameMode.CREATIVE) return;
+        if (event.getTo().getY() < 50) {
+            ItemStack helmet = player.getInventory().getHelmet();
+            switchHelmet(player, helmet);
+            respawnPlayer(player);
+        }
     }
 
     @EventHandler
@@ -121,15 +126,7 @@ public class EventListener implements Listener {
         Player player = event.getPlayer();
         ItemStack helmet = player.getInventory().getHelmet();
 
-        List<Player> onlinePlayers = (List<Player>) Bukkit.getOnlinePlayers();
-        if (helmet != null) {
-            if (onlinePlayers.isEmpty()) {
-                player.getInventory().setHelmet(null);
-            } else {
-                Player randomPlayer = onlinePlayers.get(new Random().nextInt(onlinePlayers.size()));
-                switchHelmet(player, randomPlayer, helmet);
-            }
-        }
+        switchHelmet(player, helmet);
     }
 
     @EventHandler
@@ -244,7 +241,7 @@ public class EventListener implements Listener {
     }
 
     private void switchHelmet(Player victim, Player attacker, ItemStack helmet) {
-        if (helmet != null && helmet.getType() == Material.TURTLE_HELMET) {
+        if (helmet != null) {
             attacker.getInventory().setHelmet(helmet);
             attacker.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 30, 2, true, false));
             attacker.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 30, 1));
@@ -260,6 +257,19 @@ public class EventListener implements Listener {
                 }
             }.runTaskLater(plugin, 15);
             Bukkit.broadcastMessage(ChatColor.YELLOW + attacker.getDisplayName() + "§f夺取了" + ChatColor.YELLOW + victim.getDisplayName() + "§f的终极绿帽！");
+        }
+    }
+
+    private void switchHelmet(Player victim, ItemStack helmet) {
+        List<Player> onlinePlayers = (List<Player>) Bukkit.getOnlinePlayers();
+        if (helmet != null) {
+            if (onlinePlayers.isEmpty()) {
+                victim.getInventory().setHelmet(null);
+                TaskHandler.stopActivity();
+            } else {
+                Player randomPlayer = onlinePlayers.get(new Random().nextInt(onlinePlayers.size()));
+                switchHelmet(victim, randomPlayer, helmet);
+            }
         }
     }
 
@@ -287,5 +297,10 @@ public class EventListener implements Listener {
         }
 
         return firework;
+    }
+
+    private void respawnPlayer(Player player) {
+        player.setHealth(player.getMaxHealth());
+        player.teleport(MapHandler.getCurrentSpawnLocation());
     }
 }

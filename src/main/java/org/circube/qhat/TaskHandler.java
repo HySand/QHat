@@ -267,6 +267,6 @@ public class TaskHandler {
     }
 
     public static boolean getStatus() {
-       return ACTIVATED;
+        return ACTIVATED;
     }
 }

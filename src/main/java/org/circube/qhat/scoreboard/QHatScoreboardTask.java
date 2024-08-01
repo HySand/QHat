@@ -6,14 +6,11 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.circube.qhat.QHat;
 
 public class QHatScoreboardTask extends BukkitRunnable {
-    private final QHat plugin;
     private final QHatScoreboard scoreboard;
 
-    public QHatScoreboardTask(QHat plugin, QHatScoreboard scoreboard) {
-        this.plugin = plugin;
+    public QHatScoreboardTask(QHatScoreboard scoreboard) {
         this.scoreboard = scoreboard;
     }
 
