@@ -5,6 +5,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.circube.qhat.scoreboard.QHatScoreboard;
 import org.circube.qhat.scoreboard.QHatScoreboardTask;
 
+import static org.circube.qhat.map.MapHandler.initMaps;
+
+
 public final class QHat extends JavaPlugin {
     private QHatScoreboard scoreboard;
 
@@ -19,6 +22,8 @@ public final class QHat extends JavaPlugin {
         scoreboard.setupScoreboard();
 
         new QHatScoreboardTask(scoreboard).runTaskTimer(this, 0, 10);
+
+        initMaps();
     }
 
     @Override

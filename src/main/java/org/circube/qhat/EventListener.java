@@ -3,6 +3,7 @@ package org.circube.qhat;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -26,6 +27,8 @@ import java.util.*;
 
 import static org.circube.qhat.AbilityHandler.addAsSelected;
 import static org.circube.qhat.AbilityHandler.addExtraItem;
+import static org.circube.qhat.map.MapHandler.getCurrentMap;
+import static org.circube.qhat.map.MapHandler.getCurrentSpawnLocation;
 
 public class EventListener implements Listener {
     private final QHat plugin;
@@ -53,7 +56,6 @@ public class EventListener implements Listener {
                 && event.getDamager() instanceof Projectile projectile
                 && projectile.getShooter() instanceof Player attacker
                 && victim.getHealth() - event.getFinalDamage() <= 0) {
-            if (attacker == victim) return;
             ItemStack helmet = victim.getInventory().getHelmet();
             switchHelmet(victim, attacker, helmet);
             if (attacker.getInventory().getHelmet() == null && victim.getInventory().getHelmet() == null) {
@@ -114,10 +116,18 @@ public class EventListener implements Listener {
     public void onPlayerFall(PlayerMoveEvent event) {
         Player player = event.getPlayer();
         if (player.getGameMode() == GameMode.CREATIVE) return;
-        if (event.getTo().getY() < 50) {
+        if (getCurrentMap().isOutOfMap(event.getTo().getY())) {
             ItemStack helmet = player.getInventory().getHelmet();
             switchHelmet(player, helmet);
             respawnPlayer(player);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerFirstJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        if (!player.hasPlayedBefore()) {
+            player.getInventory().clear();
         }
     }
 
@@ -211,8 +221,19 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
-    public void onExplode(EntityExplodeEvent event) {
+    public void disableExplodeGrief(EntityExplodeEvent event) {
         event.blockList().clear();
+    }
+
+    @EventHandler
+    public void disableInteractive(PlayerInteractEvent event) {
+        if (event.getPlayer().getGameMode() == GameMode.CREATIVE) return;
+        Block clickedBlock = event.getClickedBlock();
+        if (clickedBlock != null) {
+            Material blockType = clickedBlock.getType();
+            if (isInteractive(blockType)) return;
+            event.setCancelled(true);
+        }
     }
 
     @EventHandler
@@ -221,7 +242,7 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
-    public void onPlayerPickupItem(PlayerPickupArrowEvent event) {
+    public void disablePickupArrow(PlayerPickupArrowEvent event) {
         event.setCancelled(true);
     }
 
@@ -241,6 +262,7 @@ public class EventListener implements Listener {
     }
 
     private void switchHelmet(Player victim, Player attacker, ItemStack helmet) {
+        if (victim == attacker) return;
         if (helmet != null) {
             attacker.getInventory().setHelmet(helmet);
             attacker.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 30, 2, true, false));
@@ -261,7 +283,8 @@ public class EventListener implements Listener {
     }
 
     private void switchHelmet(Player victim, ItemStack helmet) {
-        List<Player> onlinePlayers = (List<Player>) Bukkit.getOnlinePlayers();
+        List<Player> onlinePlayers = new ArrayList<>(Bukkit.getOnlinePlayers());
+        onlinePlayers.remove(victim);
         if (helmet != null) {
             if (onlinePlayers.isEmpty()) {
                 victim.getInventory().setHelmet(null);
@@ -301,6 +324,12 @@ public class EventListener implements Listener {
 
     private void respawnPlayer(Player player) {
         player.setHealth(player.getMaxHealth());
-        player.teleport(MapHandler.getCurrentSpawnLocation());
+        player.teleport(getCurrentSpawnLocation());
     }
+
+    private boolean isInteractive(Material material) {
+        String name = material.name();
+        return !name.endsWith("_TRAPDOOR") && !name.endsWith("_FENCE_GATE") && !name.endsWith("LEVER");
+    }
+
 }

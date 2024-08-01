@@ -17,7 +17,8 @@ import java.util.UUID;
 
 import static org.circube.qhat.AbilityHandler.*;
 import static org.circube.qhat.CoreProtectHandler.rollBackPlacedBlocks;
-import static org.circube.qhat.MapHandler.*;
+import static org.circube.qhat.map.MapHandler.*;
+
 
 public class TaskHandler {
     private static final QHat plugin = QHat.getPlugin(QHat.class);
@@ -46,9 +47,9 @@ public class TaskHandler {
                 }
                 cancelTasks();
 
-                getRandomMap();
+                changeMap();
                 for (Player player : Bukkit.getOnlinePlayers()) {
-                    player.teleport(getCurrentSpawnLocation());
+                    clearInventory(player);
                     player.stopAllSounds();
                     player.playSound(player, "activity:opening", SoundCategory.RECORDS, 1f, 1f);
                 }
@@ -269,4 +270,6 @@ public class TaskHandler {
     public static boolean getStatus() {
         return ACTIVATED;
     }
+
+
 }

@@ -38,7 +38,6 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
                     startActivity();
                     return true;
                 }
-
             }
 
             if (Objects.equals(args[0].toLowerCase(), "reset")) {
